@@ -40,6 +40,7 @@
 - Build input payload composer
 - Parse structured model response
 - Handle fallbacks when AI is unavailable
+- *(Phase 4)* Colourful preparation narration — persona rewrite of dull API instructions on recipe card (presentation-only)
 
 ## Persistence
 

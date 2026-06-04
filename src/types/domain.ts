@@ -39,14 +39,18 @@ export interface RankedCandidate {
   reasons: string[]
 }
 
+export interface HostessCandidatePayload {
+  name: string
+  score: number
+  reasons: string[]
+  styles?: string[]
+  ingredientNames: string[]
+}
+
 export interface HostessRequest {
   userRequest: string
   availableIngredients: string[]
-  topCandidates: Array<{
-    name: string
-    score: number
-    reasons: string[]
-  }>
+  topCandidates: HostessCandidatePayload[]
   personaMode: 'house_hostess'
   substitutionNotes?: string[]
 }

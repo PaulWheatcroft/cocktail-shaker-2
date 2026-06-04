@@ -4,6 +4,7 @@ import type { RankedCandidate } from '@/types/domain'
 defineProps<{
   results: RankedCandidate[]
   selectedId: string | null
+  hostessHighlight?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -20,6 +21,9 @@ const emit = defineEmits<{
       :class="{
         'ranked__item--primary': index === 0,
         'ranked__item--selected': row.cocktail.id === selectedId,
+        'ranked__item--hostess':
+          hostessHighlight &&
+          row.cocktail.name.toLowerCase() === hostessHighlight.toLowerCase(),
       }"
     >
       <button type="button" class="ranked__button" @click="emit('select', row.cocktail.id)">
@@ -59,6 +63,10 @@ const emit = defineEmits<{
 
 .ranked__item--selected .ranked__button {
   background: var(--color-accent-soft);
+}
+
+.ranked__item--hostess .ranked__button {
+  box-shadow: inset 0 0 0 1px var(--color-accent);
 }
 
 .ranked__rank {

@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-Open the home page and use **Test API** to confirm cocktail API connectivity.
+Add ingredients, tap **Shake it** — ranked cocktails, recipe card, and hostess verdict.
 
 ### Scripts
 
@@ -54,10 +54,23 @@ Open the home page and use **Test API** to confirm cocktail API connectivity.
 |----------|----------|-------------|
 | `VITE_COCKTAIL_API_BASE_URL` | No | Default `https://www.thecocktaildb.com/api/json/v2` |
 | `VITE_COCKTAIL_API_KEY` | For v1 parity | Patreon API key (path segment). Omit to use public v1 test tier (single-ingredient only). |
-| `VITE_SUPABASE_URL` | Phase 2+ | Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Phase 2+ | Supabase anon key |
+| `VITE_SUPABASE_URL` | For hostess | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | For hostess | Supabase publishable/anon key |
 
-**Never** put LLM API keys in client env vars.
+**Never** put LLM API keys in `VITE_*` vars. Set `LLM_PROVIDER`, `OPENAI_API_KEY`, `LLM_MODEL` in Supabase Edge secrets.
+
+### Hostess Edge Function
+
+```bash
+# One-time: link project (if not done)
+supabase link --project-ref YOUR_REF
+
+# Deploy function (uses Dashboard secrets)
+supabase functions deploy recommend
+
+# Local function dev (copy secrets to supabase/functions/.env.local)
+supabase functions serve recommend --env-file supabase/functions/.env.local
+```
 
 ## Project structure
 
@@ -75,7 +88,9 @@ tests/unit/       # Vitest
 
 ## Status
 
-**Phase 1** — cabinet input, discovery, ranking, recipe card (no AI yet). Run `npm run dev`, add ingredients, **Shake it**.
+**Phase 2** — AI hostess via `recommend` Edge Function, conversation panel, refinement chips.
+
+**Phase 1** — cabinet input, discovery, ranking, recipe card.
 
 **Phase 0** — foundation scaffold, API client, design tokens.
 

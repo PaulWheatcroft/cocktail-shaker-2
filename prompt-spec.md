@@ -66,6 +66,10 @@ Preferred structured response:
 - Never become rude to the user.
 - Never recommend obviously mismatched drinks without acknowledging the compromise.
 
+## Future enhancement (Phase 4 presentation)
+
+Recipe cards currently display API `strInstructions` verbatim (dry, procedural). A later phase should add hostess **preparation narration** — same technique and measures, more colourful language — either as an extra field on the structured response or a dedicated presentation pass. See BUILD_PLAN §4.1.
+
 ## Evaluation checklist
 
 - Does the answer sound like the same person every time?

@@ -4,12 +4,19 @@ import StyleFilters from '@/features/cabinet/StyleFilters.vue'
 import DiscoveryStates from '@/features/cocktails/DiscoveryStates.vue'
 import RankedResults from '@/features/cocktails/RankedResults.vue'
 import RecipeCard from '@/features/cocktails/RecipeCard.vue'
+import MoodInput from '@/features/conversation/MoodInput.vue'
+import ConversationPanel from '@/features/conversation/ConversationPanel.vue'
+import RefinementChips from '@/features/conversation/RefinementChips.vue'
+import HostessStates from '@/features/conversation/HostessStates.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import { useCabinetStore } from '@/stores/cabinetStore'
 import { useSessionStore } from '@/stores/sessionStore'
 
 const cabinet = useCabinetStore()
 const session = useSessionStore()
+
+const isBusy = () =>
+  session.status === 'loading' || session.hostessStatus === 'loading'
 
 async function shakeFirstOnly() {
   const ing = cabinet.activeForShake[0]
@@ -30,16 +37,17 @@ async function shakeSecondOnly() {
   <section class="home">
     <h1>Your cabinet, judged properly</h1>
     <p class="home__intro">
-      Add what you have, choose up to two for a shake, and see what you can make — ranked before
-      the hostess arrives.
+      Add what you have, shake, and let the hostess tell you what you ought to make — with a recipe
+      you can trust.
     </p>
 
     <CabinetInput />
     <StyleFilters />
+    <MoodInput />
 
     <div class="home__shake">
-      <AppButton :disabled="!cabinet.canShake || session.status === 'loading'" @click="session.shake()">
-        {{ session.status === 'loading' ? 'Shaking…' : 'Shake it' }}
+      <AppButton :disabled="!cabinet.canShake || isBusy()" @click="session.shake()">
+        {{ isBusy() ? 'Shaking…' : 'Shake it' }}
       </AppButton>
     </div>
 
@@ -65,11 +73,35 @@ async function shakeSecondOnly() {
       </template>
     </DiscoveryStates>
 
+    <section
+      v-if="session.status === 'ready' && session.ranked.length"
+      class="home__hostess-block"
+    >
+      <h2 class="home__section-title">The hostess</h2>
+      <HostessStates
+        :status="session.hostessStatus"
+        :degraded="session.hostessDegraded"
+        :error-message="session.hostessError"
+        @retry="session.invokeHostess()"
+      />
+      <ConversationPanel
+        v-if="session.hostessStatus === 'ready' || session.hostessStatus === 'degraded'"
+        :response="session.hostessResponse"
+      />
+      <RefinementChips
+        v-if="session.hostessResponse?.followUpSuggestions.length"
+        :suggestions="session.hostessResponse.followUpSuggestions"
+        :disabled="session.hostessStatus === 'loading'"
+        @select="session.applyRefinement"
+      />
+    </section>
+
     <div v-if="session.status === 'ready' && session.topThree.length" class="home__results">
-      <h2>Recommendations</h2>
+      <h2>Ranked for your cabinet</h2>
       <RankedResults
         :results="session.topThree"
         :selected-id="session.selectedId"
+        :hostess-highlight="session.hostessPrimaryName"
         @select="session.selectCocktail"
       />
       <RecipeCard :cocktail="session.selectedCandidate?.cocktail ?? null" />
@@ -84,6 +116,18 @@ async function shakeSecondOnly() {
 
 .home__shake {
   margin: var(--space-lg) 0;
+}
+
+.home__hostess-block {
+  margin-top: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.home__section-title {
+  margin-bottom: 0;
+  font-family: var(--font-display);
 }
 
 .home__results {

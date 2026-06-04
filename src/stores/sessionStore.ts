@@ -1,12 +1,18 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { discoverCocktails, type FallbackMode } from '@/services/cocktails/discover'
+import { fetchHostessRecommendation } from '@/services/ai/recommend'
+import { resolveRefinementChip } from '@/services/ai/refinements'
+import { rankCandidates } from '@/services/ranking/rankCandidates'
 import type { RankContext } from '@/services/ranking/score'
-import type { RankedCandidate, StyleTag } from '@/types/domain'
+import type { HostessResponse, RankedCandidate, StyleTag } from '@/types/domain'
 import { useCabinetStore } from './cabinetStore'
 import { usePreferencesStore } from './preferencesStore'
 
 export type SessionStatus = 'idle' | 'loading' | 'ready' | 'error'
+export type HostessStatus = 'idle' | 'loading' | 'ready' | 'degraded' | 'error'
+
+const DEFAULT_USER_REQUEST = 'What should I make from my cabinet?'
 
 export const useSessionStore = defineStore('session', () => {
   const status = ref<SessionStatus>('idle')
@@ -16,11 +22,21 @@ export const useSessionStore = defineStore('session', () => {
   const fallbackMode = ref<FallbackMode>(null)
   const errorMessage = ref<string | null>(null)
 
+  const userRequest = ref(DEFAULT_USER_REQUEST)
+  const hostessStatus = ref<HostessStatus>('idle')
+  const hostessResponse = ref<HostessResponse | null>(null)
+  const hostessError = ref<string | null>(null)
+  const hostessDegraded = ref(false)
+
   const selectedCandidate = computed(() =>
     ranked.value.find((r) => r.cocktail.id === selectedId.value) ?? null,
   )
 
   const topThree = computed(() => ranked.value.slice(0, 3))
+
+  const hostessPrimaryName = computed(
+    () => hostessResponse.value?.primaryRecommendation ?? null,
+  )
 
   function setStyleFilters(filters: StyleTag[]) {
     styleFilters.value = filters
@@ -30,6 +46,10 @@ export const useSessionStore = defineStore('session', () => {
     const idx = styleFilters.value.indexOf(tag)
     if (idx >= 0) styleFilters.value.splice(idx, 1)
     else styleFilters.value.push(tag)
+  }
+
+  function setUserRequest(text: string) {
+    userRequest.value = text.trim() || DEFAULT_USER_REQUEST
   }
 
   function selectCocktail(id: string) {
@@ -46,6 +66,38 @@ export const useSessionStore = defineStore('session', () => {
     }
   }
 
+  function rerankInPlace() {
+    if (ranked.value.length === 0) return
+    const cocktails = ranked.value.map((r) => r.cocktail)
+    ranked.value = rankCandidates(cocktails, buildContext())
+    if (!ranked.value.some((r) => r.cocktail.id === selectedId.value)) {
+      selectedId.value = ranked.value[0]?.cocktail.id ?? null
+    }
+  }
+
+  async function invokeHostess() {
+    if (ranked.value.length === 0) {
+      hostessStatus.value = 'idle'
+      hostessResponse.value = null
+      return
+    }
+
+    const cabinet = useCabinetStore()
+    hostessStatus.value = 'loading'
+    hostessError.value = null
+
+    const result = await fetchHostessRecommendation(
+      userRequest.value,
+      cabinet.ingredientsForShake(),
+      ranked.value,
+    )
+
+    hostessResponse.value = result.response
+    hostessDegraded.value = result.degraded
+    hostessError.value = result.error ?? null
+    hostessStatus.value = result.degraded ? 'degraded' : 'ready'
+  }
+
   async function shake() {
     const cabinet = useCabinetStore()
     const ingredients = cabinet.ingredientsForShake()
@@ -56,10 +108,14 @@ export const useSessionStore = defineStore('session', () => {
     }
 
     status.value = 'loading'
+    hostessStatus.value = 'idle'
     errorMessage.value = null
     fallbackMode.value = null
     ranked.value = []
     selectedId.value = null
+    hostessResponse.value = null
+    hostessError.value = null
+    hostessDegraded.value = false
 
     const result = await discoverCocktails(ingredients, buildContext())
 
@@ -79,6 +135,29 @@ export const useSessionStore = defineStore('session', () => {
 
     selectedId.value = result.ranked[0]!.cocktail.id
     status.value = 'ready'
+    await invokeHostess()
+  }
+
+  async function applyRefinement(chip: string) {
+    const action = resolveRefinementChip(chip)
+
+    if (action.addStyle && !styleFilters.value.includes(action.addStyle)) {
+      styleFilters.value.push(action.addStyle)
+    }
+
+    if (action.userRequestAppend) {
+      const base = userRequest.value === DEFAULT_USER_REQUEST ? '' : `${userRequest.value} `
+      userRequest.value = `${base}${action.userRequestAppend}`.trim()
+    }
+
+    rerankInPlace()
+
+    if (action.selectRankIndex !== undefined) {
+      const target = ranked.value[action.selectRankIndex]
+      if (target) selectedId.value = target.cocktail.id
+    }
+
+    await invokeHostess()
   }
 
   function reset() {
@@ -87,6 +166,11 @@ export const useSessionStore = defineStore('session', () => {
     selectedId.value = null
     fallbackMode.value = null
     errorMessage.value = null
+    userRequest.value = DEFAULT_USER_REQUEST
+    hostessStatus.value = 'idle'
+    hostessResponse.value = null
+    hostessError.value = null
+    hostessDegraded.value = false
   }
 
   return {
@@ -96,12 +180,21 @@ export const useSessionStore = defineStore('session', () => {
     styleFilters,
     fallbackMode,
     errorMessage,
+    userRequest,
+    hostessStatus,
+    hostessResponse,
+    hostessError,
+    hostessDegraded,
     selectedCandidate,
     topThree,
+    hostessPrimaryName,
     setStyleFilters,
     toggleStyleFilter,
+    setUserRequest,
     selectCocktail,
     shake,
+    invokeHostess,
+    applyRefinement,
     reset,
   }
 })

@@ -70,6 +70,10 @@ The first version should prove three things:
 - Improve transitions and mobile details
 - Finalize portfolio framing
 
+### Phase 4: presentation richness (after core MVP)
+
+- Rewrite recipe **instructions** in hostess voice — TheCocktailDB text is accurate but flat; keep steps/measures, add colour and wit ([persona.md](persona.md))
+
 ## MVP success test
 
 A new user should be able to open the product, enter a plausible home cabinet, receive a strong recommendation with personality, and trust the displayed recipe without needing explanation of how the system works.

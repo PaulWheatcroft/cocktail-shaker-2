@@ -1,6 +1,6 @@
 # Full build plan: Cocktail Shaker 2
 
-**Status:** Phase 1 complete — Phase 2 next  
+**Status:** Phase 2 complete — Phase 3 next  
 **Last updated:** 2026-06-04  
 
 Companion docs: [architecture.md](architecture.md), [prd.md](prd.md), [mvp.md](mvp.md), [persona.md](persona.md), [prompt-spec.md](prompt-spec.md), [task-breakdown.md](task-breakdown.md).
@@ -18,10 +18,11 @@ End-to-end build plan for Cocktail Shaker 2: Vue 3 + Supabase successor with **o
 - [x] **Phase 0:** Document original app API contract (`docs/api-contract.md`) + Vue/Vite/TS scaffold, lint, test, env
 - [x] **Phase 1:** cocktailApi client, normalization, substitutions, ranking engine + Vitest; Pinia cabinet/session
 - [x] **Phase 1 UI:** Cabinet input, style filters, ranked results, recipe card, loading/empty/error states
-- [ ] **Phase 2:** Supabase Edge `recommend` function, provider-agnostic LLM adapter, schema validation + fallback
-- [ ] **Phase 2 UI:** Conversation panel, refinement chips, re-rank loop, degraded non-AI mode
+- [x] **Phase 2:** Supabase Edge `recommend` function, provider-agnostic LLM adapter, schema validation + fallback
+- [x] **Phase 2 UI:** Conversation panel, refinement chips, re-rank loop, degraded non-AI mode
 - [ ] **Phase 3:** Supabase migrations, RLS policies, optional auth, cabinet/favourites/preferences sync
 - [ ] **Phase 3:** Mobile polish, README, `docs/evolution.md`, screenshots, CI/deploy pipeline
+- [ ] **Phase 4 (presentation):** Colourful hostess narration for recipe instructions — rewrite flat TheCocktailDB prose in persona voice (presentation-only; same steps and measures)
 
 ---
 
@@ -249,6 +250,21 @@ Tables: `profiles`, `cabinet_items`, `favourite_cocktails`, `saved_preferences`,
 - GitHub Actions: lint, vitest, vue-tsc, build
 - Deploy FE + Supabase; Edge secrets; `.env.example`
 - CORS, no service role in client, secret scan in CI
+
+### 4.1 Presentation: colourful preparation copy (post-MVP enhancement)
+
+Today the recipe card shows **raw** `strInstructions` from TheCocktailDB (functional but dull, e.g. “For the preparation of the gin lemon you will not need the shaker…”). The hostess JSON (`verdict`, `rationale`) is separate and already persona-driven.
+
+**Goal:** Same factual steps and measures, but instructions read like the hostess from [persona.md](persona.md) — vivid, opinionated, concise; not a second generic paragraph.
+
+**Approach (pick one in implementation):**
+
+- Extend `recommend` output with e.g. `preparationNarration` for the primary drink (grounded in provided `instructions` + ingredients; no invented quantities), or
+- Lightweight second LLM pass / Edge Function only when a recipe card is expanded.
+
+**Guardrails:** Presentation-only per [architecture.md](architecture.md); validate against source instructions; fallback to API text if AI unavailable.
+
+**Exit criteria:** Side-by-side review — narration is characterful; steps still match the structured recipe card.
 
 ---
 

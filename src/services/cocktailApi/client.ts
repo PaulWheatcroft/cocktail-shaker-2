@@ -11,12 +11,20 @@ import { CocktailApiError } from './types.raw'
 const DEFAULT_V2_BASE = 'https://www.thecocktaildb.com/api/json/v2'
 const PUBLIC_V1_ROOT = 'https://www.thecocktaildb.com/api/json/v1/1'
 
-/** Resolves API root: v2 + Patreon key when configured, else public v1 test tier. */
+/**
+ * Resolves API root for v2 Patreon calls, e.g.
+ * https://www.thecocktaildb.com/api/json/v2/9973533
+ */
 export function getApiRoot(): string {
   const base = (import.meta.env.VITE_COCKTAIL_API_BASE_URL?.trim() || DEFAULT_V2_BASE).replace(
     /\/$/,
     '',
   )
+  // Base may already include the key: .../v2/9973533
+  if (/\/v2\/[^/]+$/.test(base)) {
+    return base
+  }
+
   const key = import.meta.env.VITE_COCKTAIL_API_KEY?.trim()
   if (key) {
     return `${base}/${key}`

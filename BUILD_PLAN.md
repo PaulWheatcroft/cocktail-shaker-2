@@ -1,6 +1,6 @@
 # Full build plan: Cocktail Shaker 2
 
-**Status:** Phase 0 complete — Phase 1 next  
+**Status:** Phase 1 complete — Phase 2 next  
 **Last updated:** 2026-06-04  
 
 Companion docs: [architecture.md](architecture.md), [prd.md](prd.md), [mvp.md](mvp.md), [persona.md](persona.md), [prompt-spec.md](prompt-spec.md), [task-breakdown.md](task-breakdown.md).
@@ -16,8 +16,8 @@ End-to-end build plan for Cocktail Shaker 2: Vue 3 + Supabase successor with **o
 ## Implementation checklist
 
 - [x] **Phase 0:** Document original app API contract (`docs/api-contract.md`) + Vue/Vite/TS scaffold, lint, test, env
-- [ ] **Phase 1:** cocktailApi client, normalization, substitutions, ranking engine + Vitest; Pinia cabinet/session
-- [ ] **Phase 1 UI:** Cabinet input, style filters, ranked results, recipe card, loading/empty/error states
+- [x] **Phase 1:** cocktailApi client, normalization, substitutions, ranking engine + Vitest; Pinia cabinet/session
+- [x] **Phase 1 UI:** Cabinet input, style filters, ranked results, recipe card, loading/empty/error states
 - [ ] **Phase 2:** Supabase Edge `recommend` function, provider-agnostic LLM adapter, schema validation + fallback
 - [ ] **Phase 2 UI:** Conversation panel, refinement chips, re-rank loop, degraded non-AI mode
 - [ ] **Phase 3:** Supabase migrations, RLS policies, optional auth, cabinet/favourites/preferences sync

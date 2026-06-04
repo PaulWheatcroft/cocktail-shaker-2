@@ -1,0 +1,14 @@
+[
+  { "missing": "dry vermouth", "substitute": "vermouth", "confidence": "tolerable" },
+  { "missing": "sweet vermouth", "substitute": "vermouth", "confidence": "tolerable" },
+  { "missing": "lime juice", "substitute": "lemon juice", "confidence": "acceptable" },
+  { "missing": "lemon juice", "substitute": "lime juice", "confidence": "acceptable" },
+  { "missing": "bourbon", "substitute": "whiskey", "confidence": "acceptable" },
+  { "missing": "whiskey", "substitute": "bourbon", "confidence": "acceptable" },
+  { "missing": "gin", "substitute": "vodka", "confidence": "tolerable" },
+  { "missing": "vodka", "substitute": "gin", "confidence": "regrettable" },
+  { "missing": "campari", "substitute": "aperol", "confidence": "tolerable" },
+  { "missing": "simple syrup", "substitute": "sugar", "confidence": "acceptable" },
+  { "missing": "triple sec", "substitute": "cointreau", "confidence": "acceptable" },
+  { "missing": "cointreau", "substitute": "triple sec", "confidence": "acceptable" }
+]

@@ -30,6 +30,12 @@ describe('cocktailApi client', () => {
     expect(usesV1ParityTier()).toBe(true)
   })
 
+  it('getApiRoot accepts full v2 path in base URL without duplicating key', () => {
+    vi.stubEnv('VITE_COCKTAIL_API_BASE_URL', 'https://www.thecocktaildb.com/api/json/v2/9973533')
+    vi.stubEnv('VITE_COCKTAIL_API_KEY', '')
+    expect(getApiRoot()).toBe('https://www.thecocktaildb.com/api/json/v2/9973533')
+  })
+
   it('fetchCocktailsByIngredient returns empty array for blank input', async () => {
     const result = await fetchCocktailsByIngredient('  ')
     expect(result).toEqual([])

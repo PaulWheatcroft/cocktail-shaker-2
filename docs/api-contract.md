@@ -82,12 +82,12 @@ Returns a batch (v1 navigates ~10 cocktails). Used on `random.html` only.
 | Instructions | ingredient + measure pairs, `strInstructions` |
 | Email | name, ingredients text, instructions (via `localStorage`) |
 
-## Multi-ingredient strategy (successor Phase 1)
-
-Match v1 first, then extend for larger cabinets:
+## Multi-ingredient strategy (Phase 1 implemented)
 
 1. **1–2 ingredients:** single `filter.php` call with comma join (requires paid key).
-2. **3+ ingredients (successor):** not in v1 — either cap at 2 for parity mode or fall back to per-ingredient filter + merge + rank (document choice in Phase 1).
+2. **Cabinet may store more items**, but only **2 active** ingredients per shake (v1 parity).
+3. **Empty dual-ingredient result:** fallback to first-only, then second-only filter (v1 behaviour).
+4. **3+ active search:** deferred — per-ingredient intersect not implemented.
 
 ## Error behaviour
 

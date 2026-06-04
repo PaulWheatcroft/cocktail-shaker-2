@@ -75,6 +75,8 @@ tests/unit/       # Vitest
 
 ## Status
 
-**Phase 0** — foundation scaffold, API client stub, design tokens, env strategy.
+**Phase 1** — cabinet input, discovery, ranking, recipe card (no AI yet). Run `npm run dev`, add ingredients, **Shake it**.
+
+**Phase 0** — foundation scaffold, API client, design tokens.
 
 Original app: [PaulWheatcroft/theCocktailShaker](https://github.com/PaulWheatcroft/theCocktailShaker) (live on [GitHub Pages](https://paulwheatcroft.github.io/theCocktailShaker/)). This repo does not modify it.

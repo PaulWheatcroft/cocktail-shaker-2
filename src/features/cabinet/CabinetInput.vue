@@ -6,7 +6,7 @@ import CabinetPicker from '@/features/cabinet/CabinetPicker.vue'
   <section class="cabinet">
     <h2>Your cabinet</h2>
     <p class="cabinet__hint">Select up to 2 ingredients for each shake.</p>
-    <CabinetPicker />
+    <CabinetPicker hide-section-headings />
   </section>
 </template>
 

@@ -7,13 +7,14 @@ defineProps<{
   cocktail: Cocktail
   presentation: DrinkPresentation | null
   verdict?: string | null
+  bare?: boolean
 }>()
 
 const favourites = useFavouritesStore()
 </script>
 
 <template>
-  <article class="drink-hero">
+  <article class="drink-hero" :class="{ 'drink-hero--bare': bare }">
     <img
       v-if="cocktail.image"
       :src="cocktail.image"
@@ -67,11 +68,27 @@ const favourites = useFavouritesStore()
   overflow: hidden;
 }
 
+.drink-hero--bare {
+  background: none;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.drink-hero--bare .drink-hero__body {
+  padding: 0;
+}
+
 .drink-hero__image {
   width: 100%;
   max-height: 14rem;
   object-fit: cover;
   background: var(--color-surface);
+}
+
+.drink-hero--bare .drink-hero__image {
+  border-radius: var(--radius-md);
+  max-height: 10rem;
 }
 
 .drink-hero__body {

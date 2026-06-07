@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import HostessPortrait from '@/components/hostess/HostessPortrait.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import CabinetPicker from '@/features/cabinet/CabinetPicker.vue'
 import { useCabinetStore } from '@/stores/cabinetStore'
@@ -20,33 +19,33 @@ const moodDraft = computed({
 
 <template>
   <section class="journey-cabinet">
-    <HostessPortrait variant="cabinet" />
-    <div class="journey-cabinet__dialogue">
-      <h1 class="journey-cabinet__prompt">What shall we raid from your cabinet tonight?</h1>
-      <p class="journey-cabinet__hint">Select up to two ingredients, or add something new.</p>
+    <header class="journey-cabinet__intro">
+      <h1 class="journey-cabinet__title">What shall we make tonight?</h1>
       <p
         v-if="session.status === 'ready' && session.ranked.length === 0"
         class="journey-cabinet__empty"
       >
-        Nothing matched that combination — the hostess expects you to try again with better stock.
+        Nothing matched that combination — try different ingredients.
       </p>
+    </header>
+
+    <div class="journey-cabinet__form">
+      <CabinetPicker />
+
+      <label class="journey-cabinet__mood">
+        <span>Anything in particular? (optional)</span>
+        <input
+          v-model="moodDraft"
+          type="text"
+          placeholder="Something dry, perhaps…"
+          spellcheck="true"
+        />
+      </label>
+
+      <AppButton :disabled="!cabinet.canShake" @click="journey.startShake()">
+        Shake it
+      </AppButton>
     </div>
-
-    <CabinetPicker />
-
-    <label class="journey-cabinet__mood">
-      <span>Anything in particular? (optional)</span>
-      <input
-        v-model="moodDraft"
-        type="text"
-        placeholder="Something dry, perhaps…"
-        spellcheck="true"
-      />
-    </label>
-
-    <AppButton :disabled="!cabinet.canShake" @click="journey.startShake()">
-      Shake it
-    </AppButton>
   </section>
 </template>
 
@@ -54,30 +53,39 @@ const moodDraft = computed({
 .journey-cabinet {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-  padding: var(--space-md) 0 var(--space-2xl);
+  align-items: center;
+  gap: var(--space-xl);
+  padding: var(--space-lg) 0 var(--space-2xl);
+  min-height: min(70vh, 32rem);
+  justify-content: center;
 }
 
-.journey-cabinet__prompt {
+.journey-cabinet__intro {
+  width: 100%;
+  max-width: 28rem;
+  text-align: center;
+}
+
+.journey-cabinet__title {
   font-family: var(--font-display);
-  font-size: clamp(1.35rem, 3.5vw, 1.75rem);
-  margin: 0 0 var(--space-sm);
-  text-align: center;
-}
-
-.journey-cabinet__hint {
-  text-align: center;
-  color: var(--color-text-muted);
+  font-size: clamp(1.5rem, 4vw, 2rem);
   margin: 0;
-  font-size: 0.95rem;
+  line-height: 1.3;
 }
 
 .journey-cabinet__empty {
-  text-align: center;
+  margin: var(--space-md) 0 0;
   color: var(--color-accent);
   font-family: var(--font-display);
-  margin: var(--space-md) 0 0;
   font-size: 1.05rem;
+}
+
+.journey-cabinet__form {
+  width: 100%;
+  max-width: 28rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
 }
 
 .journey-cabinet__mood {

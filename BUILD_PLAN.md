@@ -25,7 +25,7 @@ End-to-end build plan for Cocktail Shaker 2: Vue 3 + Supabase successor with **o
 - [x] **Phase 3:** Favourites UI, magic-link auth panel, conversation save when signed in
 - [ ] **Phase 3:** Mobile polish, screenshots, CI/deploy pipeline (Phase 4)
 - [x] **Phase 3:** `docs/evolution.md`, README updates
-- [ ] **Phase 4 (presentation):** Colourful hostess narration for recipe instructions — rewrite flat TheCocktailDB prose in persona voice (presentation-only; same steps and measures)
+- [x] **Phase 4 (presentation):** Colourful hostess narration for recipe instructions — `preparationSteps` on recommend response (presentation-only; same steps and measures)
 
 ---
 

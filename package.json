@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "run-p --print-label dev:*",
     "dev:app": "vite",
-    "dev:functions": "supabase functions serve recommend --env-file supabase/functions/.env.local",
+    "dev:functions": "supabase functions serve --env-file supabase/functions/.env.local",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",

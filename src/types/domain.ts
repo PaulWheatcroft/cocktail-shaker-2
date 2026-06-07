@@ -39,12 +39,20 @@ export interface RankedCandidate {
   reasons: string[]
 }
 
+export interface HostessRecipeIngredient {
+  name: string
+  measure?: string
+}
+
 export interface HostessCandidatePayload {
   name: string
   score: number
   reasons: string[]
   styles?: string[]
   ingredientNames: string[]
+  glass?: string
+  sourceInstructions?: string
+  ingredients?: HostessRecipeIngredient[]
 }
 
 export interface HostessRequest {
@@ -55,12 +63,24 @@ export interface HostessRequest {
   substitutionNotes?: string[]
 }
 
+export interface DrinkPresentation {
+  name: string
+  pitch: string
+  preparationSteps: string[]
+}
+
 export interface HostessResponse {
   verdict: string
   primaryRecommendation: string
   rationale: string
   alternatives: string[]
   followUpSuggestions: string[]
+  drinkPresentations: DrinkPresentation[]
+}
+
+export interface GreetingResponse {
+  greeting: string
+  favouritesCommentary?: string
 }
 
 export type SubstitutionConfidence = 'acceptable' | 'tolerable' | 'regrettable'

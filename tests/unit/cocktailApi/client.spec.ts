@@ -105,6 +105,27 @@ describe('cocktailApi client', () => {
     )
   })
 
+  it('fetchCocktailsByIngredients returns empty array when API says None Found', async () => {
+    vi.stubEnv('VITE_COCKTAIL_API_KEY', 'testkey')
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ drinks: 'None Found' }),
+    } as Response)
+
+    const result = await fetchCocktailsByIngredients(['Whisky', 'Vodka'])
+    expect(result).toEqual([])
+  })
+
+  it('fetchCocktailsByIngredient returns empty array when drinks is null', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ drinks: null }),
+    } as Response)
+
+    const result = await fetchCocktailsByIngredient('gin')
+    expect(result).toEqual([])
+  })
+
   it('fetchCocktailsByIngredients filters null and undefined strDrink entries', async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
@@ -145,6 +166,16 @@ describe('cocktailApi client', () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ drinks: null }),
+    } as Response)
+
+    const result = await fetchCocktailById('999')
+    expect(result).toBeNull()
+  })
+
+  it('fetchCocktailById returns null when API says None Found', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ drinks: 'None Found' }),
     } as Response)
 
     const result = await fetchCocktailById('999')

@@ -20,7 +20,7 @@ async function callOpenAi(
     body: JSON.stringify({
       model,
       temperature: 0.7,
-      max_tokens: 600,
+      max_tokens: 1400,
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
@@ -61,7 +61,7 @@ async function callAnthropic(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 600,
+      max_tokens: 1400,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userContent + extra }],
     }),

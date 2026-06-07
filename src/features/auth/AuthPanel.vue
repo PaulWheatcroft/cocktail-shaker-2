@@ -4,6 +4,10 @@ import AppButton from '@/components/ui/AppButton.vue'
 import { isSupabaseConfigured } from '@/services/supabase/client'
 import { useAuthStore } from '@/stores/authStore'
 
+defineProps<{
+  compact?: boolean
+}>()
+
 const auth = useAuthStore()
 const emailDraft = ref('')
 
@@ -14,7 +18,7 @@ function isLocalSupabase(): boolean {
 </script>
 
 <template>
-  <section v-if="isSupabaseConfigured()" class="auth">
+  <section v-if="isSupabaseConfigured()" class="auth" :class="{ 'auth--compact': compact }">
     <template v-if="auth.isSignedIn">
       <p class="auth__signed-in">
         Signed in as <strong>{{ auth.email }}</strong>
@@ -57,6 +61,24 @@ function isLocalSupabase(): boolean {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   margin-bottom: var(--space-lg);
+}
+
+.auth--compact {
+  margin-bottom: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  width: 100%;
+}
+
+.auth--compact .auth__hint {
+  display: none;
+}
+
+.auth--compact .auth__form {
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .auth__form {

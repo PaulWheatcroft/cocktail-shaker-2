@@ -5,6 +5,7 @@ import { useFavouritesStore } from '@/stores/favouritesStore'
 
 defineProps<{
   cocktail: Cocktail | null
+  preparationSteps?: string[] | null
 }>()
 
 const favourites = useFavouritesStore()
@@ -37,7 +38,16 @@ const favourites = useFavouritesStore()
           {{ ing.name }}
         </li>
       </ul>
-      <p v-if="cocktail.instructions" class="recipe-card__instructions">
+      <section v-if="preparationSteps?.length" class="recipe-card__method">
+        <h3 class="recipe-card__method-title">Her method</h3>
+        <ol class="recipe-card__steps">
+          <li v-for="(step, i) in preparationSteps" :key="i">{{ step }}</li>
+        </ol>
+      </section>
+      <p
+        v-else-if="cocktail.instructions"
+        class="recipe-card__instructions"
+      >
         {{ cocktail.instructions }}
       </p>
     </div>
@@ -100,6 +110,32 @@ const favourites = useFavouritesStore()
 .recipe-card__measure {
   color: var(--color-accent);
   margin-right: var(--space-xs);
+}
+
+.recipe-card__method {
+  margin-top: var(--space-sm);
+}
+
+.recipe-card__method-title {
+  margin: 0 0 var(--space-sm);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--color-accent);
+  letter-spacing: 0.02em;
+}
+
+.recipe-card__steps {
+  margin: 0;
+  padding-left: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  color: var(--color-text);
+  line-height: 1.55;
+}
+
+.recipe-card__steps li {
+  padding-left: var(--space-xs);
 }
 
 .recipe-card__instructions {

@@ -1,9 +1,23 @@
+export interface HostessRecipeIngredient {
+  name: string
+  measure?: string
+}
+
 export interface HostessCandidateInput {
   name: string
   score: number
   reasons: string[]
   styles?: string[]
   ingredientNames: string[]
+  glass?: string
+  sourceInstructions?: string
+  ingredients?: HostessRecipeIngredient[]
+}
+
+export interface DrinkPresentationBody {
+  name: string
+  pitch: string
+  preparationSteps: string[]
 }
 
 export interface HostessRequestBody {
@@ -20,6 +34,7 @@ export interface HostessResponseBody {
   rationale: string
   alternatives: string[]
   followUpSuggestions: string[]
+  drinkPresentations: DrinkPresentationBody[]
 }
 
 export interface RecommendResponse {

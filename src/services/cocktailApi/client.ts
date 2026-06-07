@@ -90,8 +90,12 @@ export function clearFilterCache(): void {
   filterCache.clear()
 }
 
+function isDrinkArray(drinks: unknown): drinks is Array<CocktailDbDrink | null> {
+  return Array.isArray(drinks)
+}
+
 function parseFilterDrinks(drinks: CocktailDbFilterResponse['drinks']): CocktailDbDrink[] {
-  if (!drinks?.length) {
+  if (!isDrinkArray(drinks) || drinks.length === 0) {
     return []
   }
   return drinks.filter(
@@ -214,7 +218,7 @@ export async function fetchCocktailById(id: string): Promise<CocktailDbDrink | n
   const data = await fetchJson<CocktailDbLookupResponse>(
     `lookup.php?i=${encodeURIComponent(id)}`,
   )
-  const drink = data.drinks?.[0] ?? null
+  const drink = isDrinkArray(data.drinks) ? (data.drinks[0] ?? null) : null
   if (!drink?.idDrink) {
     return null
   }

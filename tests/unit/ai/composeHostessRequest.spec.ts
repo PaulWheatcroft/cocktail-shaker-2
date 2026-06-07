@@ -9,6 +9,8 @@ const ranked: RankedCandidate[] = [
     cocktail: {
       id: '1',
       name: 'Negroni',
+      glass: 'Old-fashioned glass',
+      instructions: 'Stir with ice and strain.',
       ingredients: [
         { name: 'Gin', measure: '30 ml' },
         { name: 'Campari', measure: '30 ml' },
@@ -20,11 +22,14 @@ const ranked: RankedCandidate[] = [
 ]
 
 describe('composeHostessRequest', () => {
-  it('includes top candidates without instructions', () => {
+  it('includes recipe context for hostess narration', () => {
     const req = composeHostessRequest('Something dry', ['gin', 'campari'], ranked)
     expect(req.topCandidates).toHaveLength(1)
     expect(req.topCandidates[0]?.name).toBe('Negroni')
     expect(req.topCandidates[0]?.ingredientNames).toContain('Gin')
+    expect(req.topCandidates[0]?.sourceInstructions).toBe('Stir with ice and strain.')
+    expect(req.topCandidates[0]?.glass).toBe('Old-fashioned glass')
+    expect(req.topCandidates[0]?.ingredients?.[0]?.measure).toBe('30 ml')
     expect(req.personaMode).toBe('house_hostess')
   })
 

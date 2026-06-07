@@ -5,7 +5,7 @@ import { fetchHostessRecommendation } from '@/services/ai/recommend'
 import { resolveRefinementChip } from '@/services/ai/refinements'
 import { rankCandidates } from '@/services/ranking/rankCandidates'
 import type { RankContext } from '@/services/ranking/score'
-import type { HostessResponse, RankedCandidate, StyleTag } from '@/types/domain'
+import type { DrinkPresentation, HostessResponse, RankedCandidate, StyleTag } from '@/types/domain'
 import { saveConversationTurn } from '@/services/persistence/sync'
 import { useAuthStore } from './authStore'
 import { useCabinetStore } from './cabinetStore'
@@ -39,6 +39,17 @@ export const useSessionStore = defineStore('session', () => {
   const hostessPrimaryName = computed(
     () => hostessResponse.value?.primaryRecommendation ?? null,
   )
+
+  const selectedPresentation = computed((): DrinkPresentation | null => {
+    const cocktail = selectedCandidate.value?.cocktail
+    const presentations = hostessResponse.value?.drinkPresentations
+    if (!cocktail || !presentations?.length) return null
+    return (
+      presentations.find(
+        (p) => p.name.toLowerCase() === cocktail.name.toLowerCase(),
+      ) ?? null
+    )
+  })
 
   function setStyleFilters(filters: StyleTag[]) {
     styleFilters.value = filters
@@ -98,6 +109,14 @@ export const useSessionStore = defineStore('session', () => {
     hostessDegraded.value = result.degraded
     hostessError.value = result.error ?? null
     hostessStatus.value = result.degraded ? 'degraded' : 'ready'
+
+    const primaryName = result.response?.primaryRecommendation
+    if (primaryName) {
+      const match = ranked.value.find(
+        (r) => r.cocktail.name.toLowerCase() === primaryName.toLowerCase(),
+      )
+      if (match) selectedId.value = match.cocktail.id
+    }
 
     const auth = useAuthStore()
     if (auth.isSignedIn && auth.user && result.response) {
@@ -197,6 +216,7 @@ export const useSessionStore = defineStore('session', () => {
     selectedCandidate,
     topThree,
     hostessPrimaryName,
+    selectedPresentation,
     setStyleFilters,
     toggleStyleFilter,
     setUserRequest,

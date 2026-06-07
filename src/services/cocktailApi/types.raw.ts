@@ -49,8 +49,14 @@ export interface CocktailDbDrink {
   dateModified?: string | null
 }
 
+/** TheCocktailDB returns the string `"None Found"` when a filter has no matches. */
+export type CocktailDbDrinksField =
+  | Array<CocktailDbDrink | null>
+  | null
+  | 'None Found'
+
 export interface CocktailDbFilterResponse {
-  drinks: Array<CocktailDbDrink | null> | null
+  drinks: CocktailDbDrinksField
 }
 
 export interface CocktailDbIngredientRow {

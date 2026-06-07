@@ -66,9 +66,9 @@ Preferred structured response:
 - Never become rude to the user.
 - Never recommend obviously mismatched drinks without acknowledging the compromise.
 
-## Future enhancement (Phase 4 presentation)
+## Preparation narration (Phase 4)
 
-Recipe cards currently display API `strInstructions` verbatim (dry, procedural). A later phase should add hostess **preparation narration** — same technique and measures, more colourful language — either as an extra field on the structured response or a dedicated presentation pass. See BUILD_PLAN §4.1.
+The `recommend` response includes `preparationSteps` for the primary drink — flamboyant hostess-voiced steps grounded in `sourceInstructions` and structured ingredients. Recipe cards show **Her method** when the selected drink matches `primaryRecommendation`; otherwise they fall back to API `strInstructions`.
 
 ## Evaluation checklist
 

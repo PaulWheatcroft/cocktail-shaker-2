@@ -13,6 +13,12 @@ export function composeHostessRequest(
     reasons: r.reasons,
     styles: r.cocktail.style,
     ingredientNames: r.cocktail.ingredients.map((i) => i.name),
+    glass: r.cocktail.glass,
+    sourceInstructions: r.cocktail.instructions,
+    ingredients: r.cocktail.ingredients.map((i) => ({
+      name: i.name,
+      measure: i.measure,
+    })),
   }))
 
   const substitutionNotes: string[] = []

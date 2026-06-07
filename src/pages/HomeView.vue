@@ -1,145 +1,30 @@
 <script setup lang="ts">
-import CabinetInput from '@/features/cabinet/CabinetInput.vue'
-import StyleFilters from '@/features/cabinet/StyleFilters.vue'
-import DiscoveryStates from '@/features/cocktails/DiscoveryStates.vue'
-import RankedResults from '@/features/cocktails/RankedResults.vue'
-import RecipeCard from '@/features/cocktails/RecipeCard.vue'
-import MoodInput from '@/features/conversation/MoodInput.vue'
-import ConversationPanel from '@/features/conversation/ConversationPanel.vue'
-import RefinementChips from '@/features/conversation/RefinementChips.vue'
-import HostessStates from '@/features/conversation/HostessStates.vue'
-import AppButton from '@/components/ui/AppButton.vue'
-import AuthPanel from '@/features/auth/AuthPanel.vue'
-import { useCabinetStore } from '@/stores/cabinetStore'
-import { useSessionStore } from '@/stores/sessionStore'
+import { onMounted } from 'vue'
+import JourneyWelcome from '@/features/journey/JourneyWelcome.vue'
+import JourneyCabinet from '@/features/journey/JourneyCabinet.vue'
+import JourneyShaking from '@/features/journey/JourneyShaking.vue'
+import JourneyReveal from '@/features/journey/JourneyReveal.vue'
+import { useJourneyStore } from '@/stores/journeyStore'
 
-const cabinet = useCabinetStore()
-const session = useSessionStore()
+const journey = useJourneyStore()
 
-const isBusy = () =>
-  session.status === 'loading' || session.hostessStatus === 'loading'
-
-async function shakeFirstOnly() {
-  const ing = cabinet.activeForShake[0]
-  if (!ing) return
-  cabinet.setActiveForShake([ing])
-  await session.shake()
-}
-
-async function shakeSecondOnly() {
-  const ing = cabinet.activeForShake[1]
-  if (!ing) return
-  cabinet.setActiveForShake([ing])
-  await session.shake()
-}
+onMounted(() => {
+  journey.resetToWelcome()
+  journey.beginJourney()
+})
 </script>
 
 <template>
-  <section class="home">
-    <h1>Your cabinet, judged properly</h1>
-    <p class="home__intro">
-      Add what you have, shake, and let the hostess tell you what you ought to make — with a recipe
-      you can trust.
-    </p>
-
-    <AuthPanel />
-    <CabinetInput />
-    <StyleFilters />
-    <MoodInput />
-
-    <div class="home__shake">
-      <AppButton :disabled="!cabinet.canShake || isBusy()" @click="session.shake()">
-        {{ isBusy() ? 'Shaking…' : 'Shake it' }}
-      </AppButton>
-    </div>
-
-    <DiscoveryStates
-      :status="session.status"
-      :fallback-mode="session.fallbackMode"
-      :error-message="session.errorMessage"
-      :active-ingredients="cabinet.ingredientsForShake()"
-      @retry="session.shake()"
-      @shake-first="shakeFirstOnly"
-      @shake-second="shakeSecondOnly"
-    >
-      <template v-if="session.status === 'ready' && session.ranked.length === 0" #empty>
-        <p class="discovery-states__empty">No cocktails found. Try different ingredients.</p>
-        <div v-if="cabinet.ingredientsForShake().length === 2" class="discovery-states__actions">
-          <AppButton variant="ghost" @click="shakeFirstOnly">
-            Search with {{ cabinet.ingredientsForShake()[0] }}
-          </AppButton>
-          <AppButton variant="ghost" @click="shakeSecondOnly">
-            Search with {{ cabinet.ingredientsForShake()[1] }}
-          </AppButton>
-        </div>
-      </template>
-    </DiscoveryStates>
-
-    <section
-      v-if="session.status === 'ready' && session.ranked.length"
-      class="home__hostess-block"
-    >
-      <h2 class="home__section-title">The hostess</h2>
-      <HostessStates
-        :status="session.hostessStatus"
-        :degraded="session.hostessDegraded"
-        :error-message="session.hostessError"
-        @retry="session.invokeHostess()"
-      />
-      <ConversationPanel
-        v-if="session.hostessStatus === 'ready' || session.hostessStatus === 'degraded'"
-        :response="session.hostessResponse"
-      />
-      <RefinementChips
-        v-if="session.hostessResponse?.followUpSuggestions.length"
-        :suggestions="session.hostessResponse.followUpSuggestions"
-        :disabled="session.hostessStatus === 'loading'"
-        @select="session.applyRefinement"
-      />
-    </section>
-
-    <div v-if="session.status === 'ready' && session.topThree.length" class="home__results">
-      <h2>Ranked for your cabinet</h2>
-      <RankedResults
-        :results="session.topThree"
-        :selected-id="session.selectedId"
-        :hostess-highlight="session.hostessPrimaryName"
-        @select="session.selectCocktail"
-      />
-      <RecipeCard :cocktail="session.selectedCandidate?.cocktail ?? null" />
-    </div>
-  </section>
+  <div class="home-journey">
+    <JourneyWelcome v-if="journey.step === 'welcome'" />
+    <JourneyCabinet v-else-if="journey.step === 'cabinet'" />
+    <JourneyShaking v-else-if="journey.step === 'shaking'" />
+    <JourneyReveal v-else-if="journey.step === 'reveal'" />
+  </div>
 </template>
 
 <style scoped>
-.home__intro {
-  margin-bottom: var(--space-xl);
-}
-
-.home__shake {
-  margin: var(--space-lg) 0;
-}
-
-.home__hostess-block {
-  margin-top: var(--space-xl);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-
-.home__section-title {
-  margin-bottom: 0;
-  font-family: var(--font-display);
-}
-
-.home__results {
-  margin-top: var(--space-xl);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.home__results h2 {
-  margin-bottom: 0;
+.home-journey {
+  min-height: 60vh;
 }
 </style>

@@ -17,6 +17,7 @@
     "test:unit:watch": "vitest"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.107.0",
     "pinia": "^3.0.3",
     "vue": "^3.5.17",
     "vue-router": "^4.5.1"

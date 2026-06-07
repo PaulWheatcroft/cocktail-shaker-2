@@ -1,5 +1,8 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import type { LocalCabinetSnapshot } from '@/services/persistence/sync'
+import { pushCabinet } from '@/services/persistence/sync'
+import { useAuthStore } from './authStore'
 
 const STORAGE_KEY = 'cocktail-shaker:cabinet'
 
@@ -37,7 +40,29 @@ export const useCabinetStore = defineStore('cabinet', () => {
     )
   }
 
-  watch([items, activeForShake], persist, { deep: true })
+  watch([items, activeForShake], () => {
+    persist()
+    queueRemoteSync()
+  }, { deep: true })
+
+  let syncTimer: ReturnType<typeof setTimeout> | null = null
+
+  function queueRemoteSync() {
+    const auth = useAuthStore()
+    if (!auth.isSignedIn || !auth.user) return
+    if (syncTimer) clearTimeout(syncTimer)
+    syncTimer = setTimeout(() => {
+      void pushCabinet(auth.user!.id, {
+        items: [...items.value],
+        activeForShake: [...activeForShake.value],
+      })
+    }, 400)
+  }
+
+  function replaceFromRemote(snapshot: LocalCabinetSnapshot) {
+    items.value = [...snapshot.items]
+    activeForShake.value = snapshot.activeForShake.slice(0, 2)
+  }
 
   function addItem(name: string) {
     const trimmed = name.trim()
@@ -90,5 +115,6 @@ export const useCabinetStore = defineStore('cabinet', () => {
     isActive,
     ingredientsForShake,
     setActiveForShake,
+    replaceFromRemote,
   }
 })

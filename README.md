@@ -25,6 +25,7 @@ A conversational successor to Cocktail Shaker: ingredient-led discovery grounded
 | [mvp.md](mvp.md) | MVP scope |
 | [persona.md](persona.md) | Hostess voice |
 | [prompt-spec.md](prompt-spec.md) | LLM contract |
+| [docs/evolution.md](docs/evolution.md) | v1 → v2 portfolio narrative |
 
 ## Getting started
 
@@ -88,16 +89,24 @@ src/
   services/       # cocktailApi, ranking, ai
   stores/         # Pinia
   types/          # domain models
-docs/             # api-contract, evolution (later)
+docs/             # api-contract, evolution, bugs
+supabase/migrations/  # Phase 3 schema + RLS
 tests/unit/       # Vitest
 ```
 
 ## Status
 
+**Phase 3** — Supabase schema + RLS, optional magic-link auth, favourites, cabinet/prefs sync, `docs/evolution.md`.
+
 **Phase 2** — AI hostess via `recommend` Edge Function, conversation panel, refinement chips.
 
 **Phase 1** — cabinet input, discovery, ranking, recipe card.
 
-**Phase 0** — foundation scaffold, API client, design tokens.
+Apply DB migrations (hosted or local):
+
+```bash
+supabase db push   # linked hosted project
+# or: supabase start && supabase db reset   # local
+```
 
 Original app: [PaulWheatcroft/theCocktailShaker](https://github.com/PaulWheatcroft/theCocktailShaker) (live on [GitHub Pages](https://paulwheatcroft.github.io/theCocktailShaker/)). This repo does not modify it.

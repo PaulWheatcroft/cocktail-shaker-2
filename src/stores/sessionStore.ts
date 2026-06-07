@@ -6,6 +6,8 @@ import { resolveRefinementChip } from '@/services/ai/refinements'
 import { rankCandidates } from '@/services/ranking/rankCandidates'
 import type { RankContext } from '@/services/ranking/score'
 import type { HostessResponse, RankedCandidate, StyleTag } from '@/types/domain'
+import { saveConversationTurn } from '@/services/persistence/sync'
+import { useAuthStore } from './authStore'
 import { useCabinetStore } from './cabinetStore'
 import { usePreferencesStore } from './preferencesStore'
 
@@ -96,6 +98,13 @@ export const useSessionStore = defineStore('session', () => {
     hostessDegraded.value = result.degraded
     hostessError.value = result.error ?? null
     hostessStatus.value = result.degraded ? 'degraded' : 'ready'
+
+    const auth = useAuthStore()
+    if (auth.isSignedIn && auth.user && result.response) {
+      void saveConversationTurn(auth.user.id, userRequest.value, result.response).catch(() => {
+        /* non-blocking; local UX already succeeded */
+      })
+    }
   }
 
   async function shake() {

@@ -1,5 +1,7 @@
 import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import { pushPreferences } from '@/services/persistence/sync'
+import { useAuthStore } from './authStore'
 
 const STORAGE_KEY = 'cocktail-shaker:preferences'
 
@@ -20,7 +22,23 @@ export const usePreferencesStore = defineStore('preferences', () => {
 
   watch(houseStrictness, (value) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ houseStrictness: value }))
+    queueRemoteSync(value)
   })
 
-  return { houseStrictness }
+  let syncTimer: ReturnType<typeof setTimeout> | null = null
+
+  function queueRemoteSync(value: number) {
+    const auth = useAuthStore()
+    if (!auth.isSignedIn || !auth.user) return
+    if (syncTimer) clearTimeout(syncTimer)
+    syncTimer = setTimeout(() => {
+      void pushPreferences(auth.user!.id, value)
+    }, 400)
+  }
+
+  function setHouseStrictness(value: number) {
+    houseStrictness.value = Math.min(100, Math.max(0, value))
+  }
+
+  return { houseStrictness, setHouseStrictness }
 })

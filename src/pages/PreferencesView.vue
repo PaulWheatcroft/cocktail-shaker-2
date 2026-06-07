@@ -7,7 +7,7 @@ const preferences = usePreferencesStore()
 <template>
   <section>
     <h1>Preferences</h1>
-    <p>House strictness and default style chips will land in Phase 3.</p>
+    <p>Ranking weight for the house hostess — saved locally and synced when signed in.</p>
 
     <div class="prefs-card">
       <label class="prefs-row">

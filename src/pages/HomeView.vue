@@ -9,6 +9,7 @@ import ConversationPanel from '@/features/conversation/ConversationPanel.vue'
 import RefinementChips from '@/features/conversation/RefinementChips.vue'
 import HostessStates from '@/features/conversation/HostessStates.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import AuthPanel from '@/features/auth/AuthPanel.vue'
 import { useCabinetStore } from '@/stores/cabinetStore'
 import { useSessionStore } from '@/stores/sessionStore'
 
@@ -41,6 +42,7 @@ async function shakeSecondOnly() {
       you can trust.
     </p>
 
+    <AuthPanel />
     <CabinetInput />
     <StyleFilters />
     <MoodInput />

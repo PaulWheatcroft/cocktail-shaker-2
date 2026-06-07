@@ -8,6 +8,7 @@ import { RouterLink, RouterView } from 'vue-router'
       <RouterLink to="/" class="shell__brand">Cocktail Shaker</RouterLink>
       <nav class="shell__nav">
         <RouterLink to="/">Cabinet</RouterLink>
+        <RouterLink to="/favourites">Favourites</RouterLink>
         <RouterLink to="/preferences">Preferences</RouterLink>
       </nav>
     </header>

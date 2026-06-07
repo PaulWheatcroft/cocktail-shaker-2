@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import AppButton from '@/components/ui/AppButton.vue'
 import type { Cocktail } from '@/types/domain'
+import { useFavouritesStore } from '@/stores/favouritesStore'
 
 defineProps<{
   cocktail: Cocktail | null
 }>()
+
+const favourites = useFavouritesStore()
 </script>
 
 <template>
@@ -16,7 +20,16 @@ defineProps<{
       loading="lazy"
     />
     <div class="recipe-card__body">
-      <h2>{{ cocktail.name }}</h2>
+      <div class="recipe-card__head">
+        <h2>{{ cocktail.name }}</h2>
+        <AppButton
+          variant="ghost"
+          :aria-pressed="favourites.isFavourite(cocktail.id)"
+          @click="favourites.toggle(cocktail.id, cocktail.name)"
+        >
+          {{ favourites.isFavourite(cocktail.id) ? '♥ Favourited' : '♡ Favourite' }}
+        </AppButton>
+      </div>
       <p v-if="cocktail.glass" class="recipe-card__meta">{{ cocktail.glass }}</p>
       <ul class="recipe-card__ingredients">
         <li v-for="(ing, i) in cocktail.ingredients" :key="i">
@@ -57,6 +70,19 @@ defineProps<{
 
 .recipe-card__body {
   padding: var(--space-lg);
+}
+
+.recipe-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.recipe-card__head h2 {
+  margin: 0;
 }
 
 .recipe-card__meta {

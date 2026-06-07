@@ -82,6 +82,10 @@ Returns a batch (v1 navigates ~10 cocktails). Used on `random.html` only.
 | Instructions | ingredient + measure pairs, `strInstructions` |
 | Email | name, ingredients text, instructions (via `localStorage`) |
 
+## Known bugs
+
+See [bugs.md](bugs.md) for open issues.
+
 ## Multi-ingredient strategy (Phase 1 implemented)
 
 1. **1–2 ingredients:** single `filter.php` call with comma join (requires paid key).
@@ -94,10 +98,15 @@ Returns a batch (v1 navigates ~10 cocktails). Used on `random.html` only.
 | Condition | App handling |
 |-----------|----------------|
 | Network failure | `CocktailApiError` `network` |
+| HTTP 429 rate limit | `CocktailApiError` `rate_limit` — one automatic retry after 2s; user message to wait and retry |
 | Non-JSON | `malformed` |
 | `drinks: null` or empty | Empty list / v1-style fallback copy |
 | `strDrink` undefined on entry | Treat as no results (v1 parity) |
 | Misspelled ingredient | v1 validates against catalogue — successor should reuse catalogue |
+
+## Rate limits and hydration
+
+Patreon `filter.php` can return **100+** short results (e.g. Gin ≈ 108). The original app called `lookup.php` only when the user opened one recipe. This app hydrates a **capped shortlist** (24) with low concurrency to avoid 429s during ranking. Filter responses are cached in-memory per session.
 
 ## Domain field mapping
 

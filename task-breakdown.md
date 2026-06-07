@@ -8,6 +8,10 @@
 - Configure linting, formatting, and testing
 - Add environment config strategy
 
+## Bugs
+
+Track in [docs/bugs.md](docs/bugs.md).
+
 ## Data layer
 
 - Identify existing cocktail API endpoints currently used

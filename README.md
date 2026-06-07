@@ -32,9 +32,13 @@ Requires **Node.js 20.19+ or 22.12+** (see `.nvmrc`). Vite 7 warns on older Node
 
 ```bash
 cp .env.example .env
+cp supabase/functions/.env.example supabase/functions/.env.local  # LLM keys for local hostess
 npm install
-npm run dev
+supabase start   # once per session — local API on :54321
+npm run dev      # Vite + recommend Edge Function in parallel
 ```
+
+For local hostess, set `VITE_SUPABASE_URL=http://127.0.0.1:54321` and the anon key from `supabase status` (not your hosted Dashboard key).
 
 Add ingredients, tap **Shake it** — ranked cocktails, recipe card, and hostess verdict.
 
@@ -42,7 +46,9 @@ Add ingredients, tap **Shake it** — ranked cocktails, recipe card, and hostess
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Development server |
+| `npm run dev` | Vite + local `recommend` Edge Function (`dev:app`, `dev:functions`) |
+| `npm run dev:app` | Vite only |
+| `npm run dev:functions` | `supabase functions serve recommend` only |
 | `npm run build` | Production build + typecheck |
 | `npm run test:unit` | Unit tests |
 | `npm run lint` | ESLint (with fix) |
@@ -68,7 +74,7 @@ supabase link --project-ref YOUR_REF
 # Deploy function (uses Dashboard secrets)
 supabase functions deploy recommend
 
-# Local function dev (copy secrets to supabase/functions/.env.local)
+# Local function dev — also started by `npm run dev` (requires `supabase start`)
 supabase functions serve recommend --env-file supabase/functions/.env.local
 ```
 

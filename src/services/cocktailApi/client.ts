@@ -32,11 +32,30 @@ export function getApiRoot(): string {
   return PUBLIC_V1_ROOT
 }
 
-export function usesV1ParityTier(): boolean {
-  return Boolean(import.meta.env.VITE_COCKTAIL_API_KEY?.trim())
+/** True when Patreon v2 API is available (key in env or embedded in base URL). */
+export function hasPatreonApiKey(): boolean {
+  if (import.meta.env.VITE_COCKTAIL_API_KEY?.trim()) {
+    return true
+  }
+  const base = (import.meta.env.VITE_COCKTAIL_API_BASE_URL?.trim() || DEFAULT_V2_BASE).replace(
+    /\/$/,
+    '',
+  )
+  return /\/v2\/[^/]+$/.test(base)
 }
 
-async function fetchJson<T>(path: string): Promise<T> {
+/** @deprecated Prefer hasPatreonApiKey — name reflects paid tier, not v1 test API. */
+export function usesV1ParityTier(): boolean {
+  return hasPatreonApiKey()
+}
+
+const filterCache = new Map<string, CocktailDbDrink[]>()
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function fetchJson<T>(path: string, attempt = 0): Promise<T> {
   const url = `${getApiRoot()}/${path.replace(/^\//, '')}`
   let response: Response
   try {
@@ -45,7 +64,18 @@ async function fetchJson<T>(path: string): Promise<T> {
     throw new CocktailApiError('Could not reach the cocktail API.', 'network', cause)
   }
 
+  if (response.status === 429 && attempt < 1) {
+    await sleep(2000)
+    return fetchJson<T>(path, attempt + 1)
+  }
+
   if (!response.ok) {
+    if (response.status === 429) {
+      throw new CocktailApiError(
+        'The cocktail API is rate-limited. Wait a minute and try again.',
+        'rate_limit',
+      )
+    }
     throw new CocktailApiError(`Cocktail API returned ${response.status}.`, 'network')
   }
 
@@ -54,6 +84,10 @@ async function fetchJson<T>(path: string): Promise<T> {
   } catch (cause) {
     throw new CocktailApiError('Cocktail API returned invalid JSON.', 'malformed', cause)
   }
+}
+
+export function clearFilterCache(): void {
+  filterCache.clear()
 }
 
 function parseFilterDrinks(drinks: CocktailDbFilterResponse['drinks']): CocktailDbDrink[] {
@@ -66,16 +100,17 @@ function parseFilterDrinks(drinks: CocktailDbFilterResponse['drinks']): Cocktail
   )
 }
 
-function buildFilterPath(ingredients: string[]): string {
-  const cleaned = ingredients.map((i) => i.trim()).filter(Boolean)
-  if (cleaned.length === 0) {
-    return ''
-  }
-  const param = cleaned
-    .slice(0, 2)
-    .map((i) => encodeURIComponent(i))
-    .join(',')
-  return `filter.php?i=${param}`
+/** TheCocktailDB filter uses underscores for spaces (see api-contract multi-ingredient examples). */
+function formatFilterIngredient(name: string): string {
+  return name.trim().replace(/\s+/g, '_')
+}
+
+function buildSingleFilterPath(ingredient: string): string {
+  return `filter.php?i=${encodeURIComponent(formatFilterIngredient(ingredient))}`
+}
+
+function buildDualFilterPath(first: string, second: string): string {
+  return `filter.php?i=${formatFilterIngredient(first)},${formatFilterIngredient(second)}`
 }
 
 /**
@@ -96,8 +131,25 @@ export async function fetchIngredientCatalog(): Promise<string[]> {
  * Filter by a single ingredient (v1 single-input flow).
  * Passes ingredient as entered — v1 does not force capitalization in the URL.
  */
+/**
+ * Filter by a single ingredient (v1: filter.php?i={ingredient}).
+ */
 export async function fetchCocktailsByIngredient(ingredient: string): Promise<CocktailDbDrink[]> {
-  return fetchCocktailsByIngredients([ingredient])
+  const trimmed = ingredient.trim()
+  if (!trimmed) {
+    return []
+  }
+
+  const cacheKey = `1:${formatFilterIngredient(trimmed)}`
+  const cached = filterCache.get(cacheKey)
+  if (cached) {
+    return cached
+  }
+
+  const data = await fetchJson<CocktailDbFilterResponse>(buildSingleFilterPath(trimmed))
+  const drinks = parseFilterDrinks(data.drinks)
+  filterCache.set(cacheKey, drinks)
+  return drinks
 }
 
 /**
@@ -106,24 +158,39 @@ export async function fetchCocktailsByIngredient(ingredient: string): Promise<Co
 export async function fetchCocktailsByIngredients(
   ingredients: string[],
 ): Promise<CocktailDbDrink[]> {
-  const path = buildFilterPath(ingredients)
-  if (!path) {
+  const cleaned = ingredients.map((i) => i.trim()).filter(Boolean)
+
+  if (cleaned.length === 0) {
     return []
   }
 
-  if (ingredients.filter((i) => i.trim()).length > 2) {
+  if (cleaned.length === 1) {
+    return fetchCocktailsByIngredient(cleaned[0]!)
+  }
+
+  if (cleaned.length > 2) {
     throw new CocktailApiError('At most two ingredients per filter request (v1 parity).', 'malformed')
   }
 
-  if (!usesV1ParityTier() && ingredients.filter((i) => i.trim()).length > 1) {
+  if (!hasPatreonApiKey()) {
     throw new CocktailApiError(
       'Multi-ingredient filter requires VITE_COCKTAIL_API_KEY (Patreon v2 API).',
       'malformed',
     )
   }
 
-  const data = await fetchJson<CocktailDbFilterResponse>(path)
-  return parseFilterDrinks(data.drinks)
+  const cacheKey = `2:${formatFilterIngredient(cleaned[0]!)},${formatFilterIngredient(cleaned[1]!)}`
+  const cached = filterCache.get(cacheKey)
+  if (cached) {
+    return cached
+  }
+
+  const data = await fetchJson<CocktailDbFilterResponse>(
+    buildDualFilterPath(cleaned[0]!, cleaned[1]!),
+  )
+  const drinks = parseFilterDrinks(data.drinks)
+  filterCache.set(cacheKey, drinks)
+  return drinks
 }
 
 /**

@@ -19,10 +19,15 @@ async function upperSet(): Promise<Set<string>> {
 }
 
 export async function validateIngredient(name: string): Promise<boolean> {
+  return (await resolveCatalogIngredient(name)) !== null
+}
+
+/** Catalogue spelling for API filter URLs (case/spacing as returned by list.php). */
+export async function resolveCatalogIngredient(name: string): Promise<string | null> {
   const trimmed = name.trim()
-  if (!trimmed) return false
-  const set = await upperSet()
-  return set.has(trimmed.toUpperCase())
+  if (!trimmed) return null
+  const list = await loadCatalog()
+  return list.find((i) => i.toUpperCase() === trimmed.toUpperCase()) ?? null
 }
 
 export async function suggestIngredients(prefix: string, limit = 12): Promise<string[]> {

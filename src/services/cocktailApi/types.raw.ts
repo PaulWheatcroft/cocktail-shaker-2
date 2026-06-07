@@ -65,7 +65,7 @@ export interface CocktailDbLookupResponse {
   drinks: Array<CocktailDbDrink | null> | null
 }
 
-export type CocktailApiErrorCode = 'network' | 'not_found' | 'malformed'
+export type CocktailApiErrorCode = 'network' | 'not_found' | 'malformed' | 'rate_limit'
 
 export class CocktailApiError extends Error {
   constructor(

@@ -5,7 +5,7 @@ import {
 } from '@/services/cocktailApi/client'
 import type { CocktailDbDrink } from '@/services/cocktailApi/types.raw'
 import { CocktailApiError } from '@/services/cocktailApi/types.raw'
-import { validateIngredient } from '@/services/cocktailApi/catalog'
+import { resolveCatalogIngredient } from '@/services/cocktailApi/catalog'
 import { toCocktail } from '@/services/normalization/toCocktail'
 import { rankCandidates } from '@/services/ranking/rankCandidates'
 import type { RankContext } from '@/services/ranking/score'
@@ -20,13 +20,23 @@ export interface DiscoverResult {
 }
 
 const lookupCache = new Map<string, CocktailDbDrink>()
-const HYDRATE_CONCURRENCY = 5
+/** Patreon filter can return 100+ ids; v1 looked up one recipe at a time. */
+const MAX_SHORTLIST_HYDRATE = 24
+const HYDRATE_CONCURRENCY = 2
+const HYDRATE_BATCH_DELAY_MS = 150
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 async function hydrateCocktails(ids: string[]): Promise<CocktailDbDrink[]> {
-  const unique = [...new Set(ids)]
+  const unique = [...new Set(ids)].slice(0, MAX_SHORTLIST_HYDRATE)
   const results: CocktailDbDrink[] = []
 
   for (let i = 0; i < unique.length; i += HYDRATE_CONCURRENCY) {
+    if (i > 0) {
+      await sleep(HYDRATE_BATCH_DELAY_MS)
+    }
     const batch = unique.slice(i, i + HYDRATE_CONCURRENCY)
     const drinks = await Promise.all(
       batch.map(async (id) => {
@@ -53,8 +63,13 @@ async function filterShortlist(ingredients: string[]): Promise<{
     return { drinks: [], fallbackMode: null }
   }
 
+  if (cleaned.length === 1) {
+    const drinks = await fetchCocktailsByIngredient(cleaned[0]!)
+    return { drinks, fallbackMode: null }
+  }
+
   const drinks = await fetchCocktailsByIngredients(cleaned)
-  if (drinks.length > 0 || cleaned.length === 1) {
+  if (drinks.length > 0) {
     return { drinks, fallbackMode: null }
   }
 
@@ -86,23 +101,25 @@ export async function discoverCocktails(
     return { ranked: [], fallbackMode: null, error: 'Add at least one ingredient.' }
   }
 
+  const resolved: string[] = []
   for (const ing of cleaned) {
-    const valid = await validateIngredient(ing)
-    if (!valid) {
+    const catalogueName = await resolveCatalogIngredient(ing)
+    if (!catalogueName) {
       return {
         ranked: [],
         fallbackMode: null,
         error: `"${ing}" is not in the ingredient catalogue.`,
       }
     }
+    resolved.push(catalogueName)
   }
 
-  if (cleaned.length === 2 && cleaned[0]!.toLowerCase() === cleaned[1]!.toLowerCase()) {
+  if (resolved.length === 2 && resolved[0]!.toLowerCase() === resolved[1]!.toLowerCase()) {
     return { ranked: [], fallbackMode: null, error: 'Choose two different ingredients.' }
   }
 
   try {
-    const { drinks: shortlist, fallbackMode } = await filterShortlist(cleaned)
+    const { drinks: shortlist, fallbackMode } = await filterShortlist(resolved)
     if (shortlist.length === 0) {
       return { ranked: [], fallbackMode: null }
     }

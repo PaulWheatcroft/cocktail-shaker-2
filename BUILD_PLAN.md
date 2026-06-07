@@ -3,7 +3,7 @@
 **Status:** Phase 2 complete — Phase 3 next  
 **Last updated:** 2026-06-04  
 
-Companion docs: [architecture.md](architecture.md), [prd.md](prd.md), [mvp.md](mvp.md), [persona.md](persona.md), [prompt-spec.md](prompt-spec.md), [task-breakdown.md](task-breakdown.md).
+Companion docs: [architecture.md](architecture.md), [prd.md](prd.md), [mvp.md](mvp.md), [persona.md](persona.md), [prompt-spec.md](prompt-spec.md), [task-breakdown.md](task-breakdown.md), [docs/bugs.md](docs/bugs.md).
 
 ---
 
@@ -20,6 +20,7 @@ End-to-end build plan for Cocktail Shaker 2: Vue 3 + Supabase successor with **o
 - [x] **Phase 1 UI:** Cabinet input, style filters, ranked results, recipe card, loading/empty/error states
 - [x] **Phase 2:** Supabase Edge `recommend` function, provider-agnostic LLM adapter, schema validation + fallback
 - [x] **Phase 2 UI:** Conversation panel, refinement chips, re-rank loop, degraded non-AI mode
+- [x] **BUG-001:** Single-ingredient shake — use `filter.php?i={one}` path ([docs/bugs.md](docs/bugs.md))
 - [ ] **Phase 3:** Supabase migrations, RLS policies, optional auth, cabinet/favourites/preferences sync
 - [ ] **Phase 3:** Mobile polish, README, `docs/evolution.md`, screenshots, CI/deploy pipeline
 - [ ] **Phase 4 (presentation):** Colourful hostess narration for recipe instructions — rewrite flat TheCocktailDB prose in persona voice (presentation-only; same steps and measures)

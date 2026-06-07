@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { User } from '@supabase/supabase-js'
+import { authRedirectUrl, completeAuthCallback } from '@/services/supabase/authCallback'
 import { getSupabase, isSupabaseConfigured } from '@/services/supabase/client'
 import { mergeOnLogin } from '@/services/persistence/sync'
 import { useCabinetStore } from './cabinetStore'
@@ -53,12 +54,19 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
 
+    const callback = await completeAuthCallback(supabase)
+    if (callback.error) {
+      authError.value = callback.error
+    }
+
     const { data } = await supabase.auth.getSession()
     user.value = data.session?.user ?? null
     initialized.value = true
 
     if (user.value) {
       await applyMergedLocalState()
+    } else if (callback.handled && !callback.error) {
+      authMessage.value = 'Signed in successfully.'
     }
 
     supabase.auth.onAuthStateChange(async (event, session) => {
@@ -83,7 +91,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     const { error } = await supabase.auth.signInWithOtp({
       email: emailAddress.trim(),
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: authRedirectUrl() },
     })
 
     if (error) {

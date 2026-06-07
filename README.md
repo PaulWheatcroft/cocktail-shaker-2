@@ -41,6 +41,10 @@ npm run dev      # Vite + recommend Edge Function in parallel
 
 For local hostess, set `VITE_SUPABASE_URL=http://127.0.0.1:54321` and the anon key from `supabase status` (not your hosted Dashboard key).
 
+**Magic links (local):** emails are captured by [Inbucket](http://127.0.0.1:54324) — not your real inbox. After changing `supabase/config.toml` auth URLs, run `supabase stop && supabase start`.
+
+**Magic links (hosted):** add `http://localhost:5173/` to [Auth → URL Configuration](https://supabase.com/dashboard/project/ljtioikrhovnlthspqua/auth/url-configuration) redirect allow list.
+
 Add ingredients, tap **Shake it** — ranked cocktails, recipe card, and hostess verdict.
 
 ### Scripts

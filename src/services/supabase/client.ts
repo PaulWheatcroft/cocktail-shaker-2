@@ -19,6 +19,13 @@ export function getSupabase(): SupabaseClient<Database> | null {
     client = createClient<Database>(
       import.meta.env.VITE_SUPABASE_URL!.trim(),
       import.meta.env.VITE_SUPABASE_ANON_KEY!.trim(),
+      {
+        auth: {
+          detectSessionInUrl: true,
+          flowType: 'pkce',
+          persistSession: true,
+        },
+      },
     )
   }
   return client

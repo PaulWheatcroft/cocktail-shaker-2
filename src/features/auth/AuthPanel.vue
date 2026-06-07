@@ -6,6 +6,11 @@ import { useAuthStore } from '@/stores/authStore'
 
 const auth = useAuthStore()
 const emailDraft = ref('')
+
+function isLocalSupabase(): boolean {
+  const url = import.meta.env.VITE_SUPABASE_URL?.trim() ?? ''
+  return url.includes('127.0.0.1') || url.includes('localhost:54321')
+}
 </script>
 
 <template>
@@ -31,7 +36,14 @@ const emailDraft = ref('')
         </label>
         <AppButton variant="ghost" @click="auth.sendMagicLink(emailDraft)">Send magic link</AppButton>
       </div>
-      <p class="auth__hint">Cabinet works without an account. Sign in to sync favourites across devices.</p>
+      <p class="auth__hint">
+        Cabinet works without an account. Sign in to sync favourites across devices.
+        <template v-if="isLocalSupabase()">
+          Local dev: open magic links in
+          <a href="http://127.0.0.1:54324" target="_blank" rel="noopener">Inbucket (port 54324)</a>,
+          not your real inbox.
+        </template>
+      </p>
     </template>
     <p v-if="auth.authMessage" class="auth__message">{{ auth.authMessage }}</p>
     <p v-if="auth.authError" class="auth__error">{{ auth.authError }}</p>

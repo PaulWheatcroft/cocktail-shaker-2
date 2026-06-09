@@ -116,6 +116,7 @@ function closeNav() {
 
 .shell__main {
   flex: 1;
+  min-height: 0;
   padding: var(--space-lg);
   max-width: 42rem;
   margin: 0 auto;

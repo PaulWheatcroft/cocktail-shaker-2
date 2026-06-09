@@ -25,6 +25,17 @@ onMounted(() => {
 
 <style scoped>
 .home-journey {
-  min-height: 60vh;
+  min-height: 0;
+}
+
+.home-journey:has(.journey-cabinet) {
+  height: calc(100dvh - var(--header-height) - var(--space-lg) * 2);
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .home-journey:has(.journey-cabinet) {
+    height: calc(100dvh - var(--header-height) - var(--space-md) * 2);
+  }
 }
 </style>

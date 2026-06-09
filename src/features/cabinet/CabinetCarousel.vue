@@ -182,13 +182,13 @@ function onShelfCardClick(name: string) {
   padding: var(--space-sm) var(--space-xs) var(--space-md);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: var(--color-surface);
+  background: transparent;
   color: var(--color-text-muted);
   cursor: grab;
   transition:
     border-color 0.15s ease,
     transform 0.15s ease,
-    background 0.15s ease;
+    color 0.15s ease;
 }
 
 .shelf-card:hover {
@@ -201,7 +201,6 @@ function onShelfCardClick(name: string) {
 
 .shelf-card--active {
   border-color: var(--color-success);
-  background: var(--color-success-soft);
   color: var(--color-text);
 }
 
@@ -263,7 +262,7 @@ function onShelfCardClick(name: string) {
   padding: var(--space-md);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, transparent, var(--color-bg-elevated));
+  background: var(--color-bg-elevated);
 }
 
 .cabinet-bar__title {
@@ -295,7 +294,7 @@ function onShelfCardClick(name: string) {
   padding: var(--space-xs) var(--space-sm);
   border: 1px solid var(--color-success);
   border-radius: 999px;
-  background: var(--color-success-soft);
+  background: transparent;
   color: var(--color-text);
   cursor: pointer;
 }

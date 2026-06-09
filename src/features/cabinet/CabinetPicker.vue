@@ -114,7 +114,7 @@ function pickSuggestion(name: string) {
   display: flex;
   flex-direction: column;
   padding: var(--space-lg) var(--space-md);
-  background: var(--color-bg-elevated);
+  background: transparent;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: visible;

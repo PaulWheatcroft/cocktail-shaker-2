@@ -41,15 +41,7 @@ function pickSuggestion(name: string) {
 
 <template>
   <div class="cabinet-picker" :class="{ 'cabinet-picker--compact': compact }">
-    <section
-      class="cabinet-picker__add"
-      aria-label="Add to cabinet"
-      :aria-labelledby="hideSectionHeadings ? undefined : 'cabinet-add-heading'"
-    >
-      <h2 v-if="!hideSectionHeadings" id="cabinet-add-heading" class="cabinet-picker__heading">
-        Add to cabinet
-      </h2>
-
+    <section class="cabinet-picker__add" aria-label="Add to cabinet">
       <div class="cabinet-picker__add-row">
         <div class="cabinet-picker__search">
           <input
@@ -78,7 +70,11 @@ function pickSuggestion(name: string) {
       aria-label="Your cabinet"
       :aria-labelledby="hideSectionHeadings ? undefined : 'cabinet-stock-heading'"
     >
-      <h2 v-if="!hideSectionHeadings" id="cabinet-stock-heading" class="cabinet-picker__heading">
+      <h2
+        v-if="!hideSectionHeadings"
+        id="cabinet-stock-heading"
+        class="cabinet-picker__heading cabinet-picker__heading--center"
+      >
         Your cabinet
       </h2>
       <p class="cabinet-picker__stock-hint">
@@ -100,10 +96,12 @@ function pickSuggestion(name: string) {
 
 .cabinet-picker__heading {
   margin: 0 0 var(--space-xs);
-  font-family: var(--font-display);
-  font-size: 1rem;
   font-weight: 600;
   color: var(--color-text);
+}
+
+.cabinet-picker__heading--center {
+  text-align: center;
 }
 
 .cabinet-picker__add {
@@ -119,6 +117,7 @@ function pickSuggestion(name: string) {
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  overflow: visible;
 }
 
 .cabinet-picker__stock-hint {
@@ -146,6 +145,10 @@ function pickSuggestion(name: string) {
   border-radius: var(--radius-md);
   background: var(--color-surface);
   color: var(--color-text);
+}
+
+.cabinet-picker__search input:focus-visible {
+  outline-offset: 0;
 }
 
 .cabinet-picker__error {

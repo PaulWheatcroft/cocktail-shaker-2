@@ -157,8 +157,8 @@ function onShelfCardClick(name: string) {
   min-height: 7.5rem;
   align-items: stretch;
   overflow-x: auto;
-  overflow-y: hidden;
-  padding: var(--space-sm) var(--space-xs) var(--space-md);
+  overflow-y: visible;
+  padding: var(--space-sm) var(--space-md) var(--space-md);
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
@@ -220,8 +220,8 @@ function onShelfCardClick(name: string) {
 
 .shelf-card__tick {
   position: absolute;
-  top: -0.4rem;
-  left: -0.4rem;
+  top: 0.35rem;
+  left: 0.35rem;
   z-index: 1;
   display: grid;
   place-items: center;
@@ -236,8 +236,8 @@ function onShelfCardClick(name: string) {
 
 .shelf-card__remove {
   position: absolute;
-  top: -0.4rem;
-  right: -0.4rem;
+  top: 0.35rem;
+  right: 0.35rem;
   width: 1.35rem;
   height: 1.35rem;
   display: grid;

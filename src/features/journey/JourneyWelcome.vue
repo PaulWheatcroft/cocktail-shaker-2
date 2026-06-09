@@ -102,8 +102,6 @@ const journey = useJourneyStore()
 }
 
 .journey-welcome__headline {
-  font-family: var(--font-display);
-  font-size: clamp(1.35rem, 3.5vw, 1.85rem);
   line-height: 1.35;
   margin: 0 0 var(--space-md);
 }

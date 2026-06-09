@@ -13,7 +13,7 @@ const session = useSessionStore()
 <template>
   <section class="journey-cabinet">
     <header class="journey-cabinet__intro">
-      <h1 class="journey-cabinet__title">What shall we make tonight?</h1>
+      <h1 class="journey-cabinet__title">What shall we shake</h1>
       <p
         v-if="session.status === 'ready' && session.ranked.length === 0"
         class="journey-cabinet__empty"
@@ -40,7 +40,8 @@ const session = useSessionStore()
   gap: var(--space-sm);
   height: 100%;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 .journey-cabinet__intro {
@@ -51,8 +52,6 @@ const session = useSessionStore()
 }
 
 .journey-cabinet__title {
-  font-family: var(--font-display);
-  font-size: clamp(1.25rem, 4vw, 1.65rem);
   margin: 0;
   line-height: 1.25;
 }
@@ -72,9 +71,11 @@ const session = useSessionStore()
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+  padding-inline: var(--space-sm);
 }
 
 .journey-cabinet__shake {
   flex: 0 0 auto;
+  width: 100%;
 }
 </style>

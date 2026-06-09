@@ -1,3 +1,13 @@
+@font-face {
+  font-family: 'Bar Display';
+  src:
+    url('/fonts/bar-display.woff2') format('woff2'),
+    url('/fonts/bar-display.woff') format('woff');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --color-bg: #0f1214;
   --color-bg-elevated: #1a1f24;
@@ -11,7 +21,7 @@
   --color-success: #4caf72;
   --color-success-soft: rgba(76, 175, 114, 0.16);
 
-  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-display: 'Bar Display', Georgia, serif;
   --font-body: 'Source Sans 3', system-ui, sans-serif;
 
   --radius-sm: 4px;
@@ -64,11 +74,11 @@ h3 {
 }
 
 h1 {
-  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  font-size: 22px;
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 18px;
 }
 
 p {

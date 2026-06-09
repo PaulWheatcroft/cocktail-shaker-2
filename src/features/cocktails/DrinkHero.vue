@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import AppButton from '@/components/ui/AppButton.vue'
 import type { Cocktail, DrinkPresentation } from '@/types/domain'
 import { useFavouritesStore } from '@/stores/favouritesStore'
 
@@ -15,6 +14,10 @@ const favourites = useFavouritesStore()
 
 <template>
   <article class="drink-hero" :class="{ 'drink-hero--bare': bare }">
+    <div class="drink-hero__title-row">
+      <h1 class="drink-hero__name">{{ cocktail.name }}</h1>
+    </div>
+
     <img
       v-if="cocktail.image"
       :src="cocktail.image"
@@ -22,19 +25,25 @@ const favourites = useFavouritesStore()
       class="drink-hero__image"
       loading="lazy"
     />
+
     <div class="drink-hero__body">
-      <div class="drink-hero__head">
-        <h2>{{ cocktail.name }}</h2>
-        <AppButton
-          variant="ghost"
+      <div class="drink-hero__meta-row">
+        <p v-if="cocktail.glass" class="drink-hero__meta">{{ cocktail.glass }}</p>
+        <button
+          type="button"
+          class="drink-hero__favourite"
+          :class="{ 'drink-hero__favourite--active': favourites.isFavourite(cocktail.id) }"
           :aria-pressed="favourites.isFavourite(cocktail.id)"
+          :aria-label="
+            favourites.isFavourite(cocktail.id)
+              ? `Remove ${cocktail.name} from favourites`
+              : `Add ${cocktail.name} to favourites`
+          "
           @click="favourites.toggle(cocktail.id, cocktail.name)"
         >
-          {{ favourites.isFavourite(cocktail.id) ? '♥ Favourited' : '♡ Favourite' }}
-        </AppButton>
+          <span aria-hidden="true">{{ favourites.isFavourite(cocktail.id) ? '♥' : '♡' }}</span>
+        </button>
       </div>
-
-      <p v-if="cocktail.glass" class="drink-hero__meta">{{ cocktail.glass }}</p>
 
       <p v-if="verdict" class="drink-hero__verdict">{{ verdict }}</p>
 
@@ -75,8 +84,54 @@ const favourites = useFavouritesStore()
   overflow: visible;
 }
 
-.drink-hero--bare .drink-hero__body {
+.drink-hero__title-row {
+  padding: 0 0 var(--space-sm);
+  text-align: center;
+}
+
+.drink-hero__name {
+  margin: 0;
+  line-height: 1.25;
+}
+
+.drink-hero__meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.drink-hero__favourite {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-left: auto;
   padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 1.65rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.drink-hero__favourite--active {
+  color: var(--color-accent);
+}
+
+.drink-hero__favourite:hover,
+.drink-hero__favourite:focus-visible {
+  color: var(--color-accent);
+}
+
+/* Blend keeps gold display type legible over the blurred portrait behind the card. */
+.drink-hero--bare .drink-hero__name,
+.drink-hero--bare .drink-hero__verdict {
+  color: var(--color-accent);
+  mix-blend-mode: exclusion;
 }
 
 .drink-hero__image {
@@ -95,24 +150,14 @@ const favourites = useFavouritesStore()
   padding: var(--space-lg);
 }
 
-.drink-hero__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
-}
-
-.drink-hero__head h2 {
-  margin: 0;
-  font-family: var(--font-display);
+.drink-hero--bare .drink-hero__body {
+  padding: var(--space-md) 0 0;
 }
 
 .drink-hero__meta {
+  margin: 0;
   color: var(--color-text-muted);
   font-size: 0.9rem;
-  margin: 0 0 var(--space-md);
 }
 
 .drink-hero__verdict {

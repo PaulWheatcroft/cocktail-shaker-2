@@ -138,7 +138,7 @@ function isShining(name: string) {
     </draggable>
 
     <section class="cabinet-bar" aria-label="The bar — items selected for this shake">
-      <h2 class="cabinet-bar__title">The bar</h2>
+      <h2>The bar</h2>
       <div class="cabinet-bar__slots">
         <div class="cabinet-bar__underlay" aria-hidden="true">
           <div
@@ -285,13 +285,6 @@ function isShining(name: string) {
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-elevated);
-}
-
-.cabinet-bar__title {
-  margin: 0 0 var(--space-sm);
-  font-family: var(--font-display);
-  font-size: 0.9rem;
-  color: var(--color-text);
 }
 
 .cabinet-bar__slots {

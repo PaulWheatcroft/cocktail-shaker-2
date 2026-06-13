@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import AppButton from '@/components/ui/AppButton.vue'
 import CabinetCarousel from '@/features/cabinet/CabinetCarousel.vue'
 import { suggestIngredients } from '@/services/cocktailApi/catalog'
 import { useCabinetStore } from '@/stores/cabinetStore'
@@ -59,7 +58,6 @@ function pickSuggestion(name: string) {
             </li>
           </ul>
         </div>
-        <AppButton variant="ghost" @click="addDraft">Add</AppButton>
       </div>
 
       <p v-if="inputError" class="cabinet-picker__error">{{ inputError }}</p>
@@ -82,6 +80,10 @@ function pickSuggestion(name: string) {
       </p>
 
       <CabinetCarousel />
+
+      <footer v-if="$slots.footer" class="cabinet-picker__footer">
+        <slot name="footer" />
+      </footer>
     </section>
   </div>
 </template>
@@ -124,6 +126,15 @@ function pickSuggestion(name: string) {
   margin: 0 0 var(--space-sm);
   font-size: 0.8rem;
   color: var(--color-text-muted);
+}
+
+.cabinet-picker__footer {
+  flex-shrink: 0;
+  margin: var(--space-md) calc(-1 * var(--space-md)) calc(-1 * var(--space-lg));
+  padding: var(--space-md) var(--space-md);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
 }
 
 .cabinet-picker__add-row {

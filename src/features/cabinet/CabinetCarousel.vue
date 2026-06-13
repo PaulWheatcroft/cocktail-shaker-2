@@ -101,7 +101,7 @@ function onShelfCardClick(name: string) {
     </draggable>
 
     <section class="cabinet-bar" aria-label="The bar — items selected for this shake">
-      <h3 class="cabinet-bar__title">The bar</h3>
+      <h2>The bar</h2>
       <draggable
         v-model="barItems"
         class="cabinet-bar__drop"

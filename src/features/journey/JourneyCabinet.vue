@@ -23,11 +23,13 @@ const session = useSessionStore()
     </header>
 
     <div class="journey-cabinet__form">
-      <CabinetPicker />
-
-      <AppButton class="journey-cabinet__shake" :disabled="!cabinet.canShake" @click="journey.startShake()">
-        Shake it
-      </AppButton>
+      <CabinetPicker>
+        <template #footer>
+          <AppButton class="journey-cabinet__shake" :disabled="!cabinet.canShake" @click="journey.startShake()">
+            Shake it
+          </AppButton>
+        </template>
+      </CabinetPicker>
     </div>
   </section>
 </template>
@@ -76,6 +78,5 @@ const session = useSessionStore()
 
 .journey-cabinet__shake {
   flex: 0 0 auto;
-  width: 100%;
 }
 </style>

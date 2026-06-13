@@ -2,18 +2,30 @@
 import { ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import AuthPanel from '@/features/auth/AuthPanel.vue'
+import { useJourneyStore } from '@/stores/journeyStore'
 
+const journey = useJourneyStore()
 const navOpen = ref(false)
 
 function closeNav() {
   navOpen.value = false
+}
+
+function goHome() {
+  journey.resetToWelcome()
+  closeNav()
+}
+
+function goToCabinet() {
+  journey.advanceToCabinet()
+  closeNav()
 }
 </script>
 
 <template>
   <div class="shell">
     <header class="shell__header">
-      <RouterLink to="/" class="shell__brand" @click="closeNav">Cocktail Shaker</RouterLink>
+      <RouterLink to="/" class="shell__brand" @click="goHome">Cocktail Shaker</RouterLink>
       <button
         type="button"
         class="shell__toggle"
@@ -25,20 +37,34 @@ function closeNav() {
       </button>
     </header>
 
-    <nav
-      id="shell-nav"
-      class="shell__nav"
-      :class="{ 'shell__nav--open': navOpen }"
-      aria-label="Main"
-    >
-      <RouterLink to="/" @click="closeNav">Cabinet</RouterLink>
-      <RouterLink to="/favourites" @click="closeNav">Favourites</RouterLink>
-      <RouterLink to="/preferences" @click="closeNav">Preferences</RouterLink>
-      <AuthPanel compact />
-    </nav>
+    <Transition name="fade">
+      <div
+        v-if="navOpen"
+        class="shell__overlay"
+        @click="closeNav"
+      />
+    </Transition>
+
+    <Transition name="slide">
+      <nav
+        v-if="navOpen"
+        id="shell-nav"
+        class="shell__nav"
+        aria-label="Main"
+      >
+        <RouterLink to="/" @click="goToCabinet">Cabinet</RouterLink>
+        <RouterLink to="/favourites" @click="closeNav">Favourites</RouterLink>
+        <RouterLink to="/preferences" @click="closeNav">Preferences</RouterLink>
+        <AuthPanel compact />
+      </nav>
+    </Transition>
 
     <main class="shell__main">
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <Transition name="page" mode="out-in">
+          <component :is="Component" />
+        </Transition>
+      </RouterView>
     </main>
   </div>
 </template>
@@ -66,7 +92,7 @@ function closeNav() {
 
 .shell__brand {
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 1.7rem;
   font-weight: 600;
   color: var(--color-text);
   text-decoration: none;
@@ -92,17 +118,72 @@ function closeNav() {
   color: var(--color-accent);
 }
 
+.shell__overlay {
+  position: fixed;
+  inset: var(--header-height) 0 0 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 8;
+}
+
 .shell__nav {
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: var(--space-md);
   padding: var(--space-md) var(--space-lg);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-bg-elevated);
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  z-index: 9;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
 }
 
-.shell__nav--open {
-  display: flex;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.25s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateY(-100%);
+}
+
+/* Page transition: fade + slide */
+.page-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.page-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-24px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter-active,
+  .page-leave-active {
+    transition: none;
+  }
 }
 
 .shell__nav a {
@@ -121,29 +202,6 @@ function closeNav() {
   max-width: 42rem;
   margin: 0 auto;
   width: 100%;
-}
-
-@media (min-width: 720px) {
-  .shell__toggle {
-    display: none;
-  }
-
-  .shell__nav {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-lg);
-    padding: var(--space-sm) var(--space-lg);
-  }
-
-  .shell__nav :deep(.auth) {
-    margin-left: auto;
-    margin-bottom: 0;
-    padding: 0;
-    background: none;
-    border: none;
-  }
 }
 
 @media (max-width: 480px) {

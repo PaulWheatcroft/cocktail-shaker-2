@@ -71,14 +71,19 @@ h3 {
   font-weight: 600;
   line-height: 1.2;
   margin: 0 0 var(--space-md);
+  text-align: center;
 }
 
 h1 {
-  font-size: 22px;
+  font-size: 1.75rem;
 }
 
 h2 {
-  font-size: 18px;
+  font-size: 1.375rem;
+}
+
+h3 {
+  font-size: 1.15rem;
 }
 
 p {

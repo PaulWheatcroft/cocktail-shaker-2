@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import ShakerAnimation from '@/components/animation/ShakerAnimation.vue'
-import HostessPortrait from '@/components/hostess/HostessPortrait.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import DrinkHero from '@/features/cocktails/DrinkHero.vue'
 import RefinementChips from '@/features/conversation/RefinementChips.vue'
@@ -24,15 +23,15 @@ function selectAlternative(id: string) {
 
 <template>
   <section class="journey-reveal">
-    <ShakerAnimation
-      v-if="session.hostessStatus === 'loading' || session.status === 'loading'"
-      label="The hostess is shaking your drink…"
-    />
+    <Transition name="reveal" mode="out-in">
+      <ShakerAnimation
+        v-if="session.hostessStatus === 'loading' || session.status === 'loading'"
+        key="loading"
+        label="The hostess is shaking your drink…"
+      />
 
-    <div v-else class="journey-reveal__stage">
+      <div v-else key="stage" class="journey-reveal__stage">
       <div class="journey-reveal__card">
-        <HostessPortrait variant="reveal" class="journey-reveal__portrait" />
-
         <div class="journey-reveal__scroll">
           <p v-if="session.fallbackMode" class="journey-reveal__fallback">
             Nothing matched both ingredients — showing results for one only.
@@ -81,7 +80,8 @@ function selectAlternative(id: string) {
           <AppButton variant="ghost" @click="journey.newRound()">Another round</AppButton>
         </div>
       </div>
-    </div>
+      </div>
+    </Transition>
   </section>
 </template>
 
@@ -95,6 +95,31 @@ function selectAlternative(id: string) {
   justify-content: center;
   overflow: hidden;
   padding: 0;
+}
+
+.reveal-enter-active {
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.reveal-enter-from {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.reveal-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-enter-active,
+  .reveal-leave-active {
+    transition: none;
+  }
 }
 
 .journey-reveal__stage {
@@ -124,25 +149,6 @@ function selectAlternative(id: string) {
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
   overflow: hidden;
   isolation: isolate;
-}
-
-.journey-reveal__card :deep(.hostess-portrait) {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.journey-reveal__card :deep(.hostess-portrait__img) {
-  height: 100%;
-  width: auto;
-  max-width: 100%;
-  object-fit: contain;
-  object-position: center;
 }
 
 .journey-reveal__scroll {

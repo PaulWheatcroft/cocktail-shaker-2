@@ -1,8 +1,20 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import AppButton from '@/components/ui/AppButton.vue'
 import { useFavouritesStore } from '@/stores/favouritesStore'
+import { useJourneyStore } from '@/stores/journeyStore'
+import { useSessionStore } from '@/stores/sessionStore'
 
 const favourites = useFavouritesStore()
+const journey = useJourneyStore()
+const session = useSessionStore()
+const router = useRouter()
+
+function openFavourite(cocktailId: string) {
+  void session.loadCocktailById(cocktailId)
+  journey.step = 'reveal'
+  void router.push('/')
+}
 </script>
 
 <template>
@@ -14,7 +26,9 @@ const favourites = useFavouritesStore()
 
     <ul v-else class="favourites__list">
       <li v-for="fav in favourites.items" :key="fav.cocktailId" class="favourites__item">
-        <span>{{ fav.cocktailName }}</span>
+        <button type="button" class="favourites__name" @click="openFavourite(fav.cocktailId)">
+          {{ fav.cocktailName }}
+        </button>
         <AppButton variant="ghost" @click="favourites.remove(fav.cocktailId)">Remove</AppButton>
       </li>
     </ul>
@@ -50,5 +64,22 @@ const favourites = useFavouritesStore()
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+}
+
+.favourites__name {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.favourites__name:hover,
+.favourites__name:focus-visible {
+  color: var(--color-accent);
 }
 </style>

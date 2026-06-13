@@ -25,8 +25,8 @@ function selectAlternative(id: string) {
 <template>
   <section class="journey-reveal">
     <ShakerAnimation
-      v-if="session.hostessStatus === 'loading'"
-      label="The hostess is reconsidering…"
+      v-if="session.hostessStatus === 'loading' || session.status === 'loading'"
+      label="The hostess is shaking your drink…"
     />
 
     <div v-else class="journey-reveal__stage">

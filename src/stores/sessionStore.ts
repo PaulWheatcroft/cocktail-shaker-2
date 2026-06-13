@@ -1,6 +1,8 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { discoverCocktails, type FallbackMode } from '@/services/cocktails/discover'
+import { fetchCocktailById } from '@/services/cocktailApi/client'
+import { toCocktail } from '@/services/normalization/toCocktail'
 import { fetchHostessRecommendation } from '@/services/ai/recommend'
 import { resolveRefinementChip } from '@/services/ai/refinements'
 import { rankCandidates } from '@/services/ranking/rankCandidates'
@@ -67,6 +69,36 @@ export const useSessionStore = defineStore('session', () => {
 
   function selectCocktail(id: string) {
     selectedId.value = id
+  }
+
+  async function loadCocktailById(id: string) {
+    status.value = 'loading'
+    errorMessage.value = null
+    fallbackMode.value = null
+    ranked.value = []
+    selectedId.value = null
+    hostessStatus.value = 'idle'
+    hostessResponse.value = null
+    hostessError.value = null
+    hostessDegraded.value = false
+
+    try {
+      const drink = await fetchCocktailById(id)
+      const cocktail = drink ? toCocktail(drink) : null
+      if (!cocktail) {
+        errorMessage.value = 'Could not load that cocktail.'
+        status.value = 'error'
+        return
+      }
+
+      ranked.value = rankCandidates([cocktail], buildContext())
+      selectedId.value = id
+      status.value = 'ready'
+      await invokeHostess()
+    } catch (e) {
+      errorMessage.value = e instanceof Error ? e.message : 'Could not load that cocktail.'
+      status.value = 'error'
+    }
   }
 
   function buildContext(): RankContext {
@@ -221,6 +253,7 @@ export const useSessionStore = defineStore('session', () => {
     toggleStyleFilter,
     setUserRequest,
     selectCocktail,
+    loadCocktailById,
     shake,
     invokeHostess,
     applyRefinement,

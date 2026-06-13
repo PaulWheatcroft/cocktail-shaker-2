@@ -1,43 +1,68 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import draggable from 'vuedraggable'
 import IngredientGraphic from './IngredientGraphic.vue'
 import { categoryFor } from './ingredientGraphics'
 import { useCabinetStore } from '@/stores/cabinetStore'
 
 const MAX_ON_BAR = 2
+const SHINE_MS = 900
 
 const cabinet = useCabinetStore()
 
+function activeKeys() {
+  return new Set(cabinet.activeForShake.map((i) => i.toLowerCase()))
+}
+
+function buildShelf(): string[] {
+  const active = activeKeys()
+  return cabinet.items.filter((i) => !active.has(i.toLowerCase()))
+}
+
+const shelfItems = ref<string[]>(buildShelf())
 const barItems = ref<string[]>([...cabinet.activeForShake])
+const justLocked = ref<string | null>(null)
+let shineTimer: ReturnType<typeof setTimeout> | null = null
+
 let internalUpdate = false
 
 watch(
-  () => cabinet.activeForShake.slice(),
-  (next) => {
+  () => [cabinet.items.slice(), cabinet.activeForShake.slice()],
+  () => {
     if (internalUpdate) return
-    barItems.value = [...next]
+    shelfItems.value = buildShelf()
+    barItems.value = [...cabinet.activeForShake]
   },
   { deep: true },
 )
+
+const emptySlots = computed(() => Math.max(0, MAX_ON_BAR - barItems.value.length))
 
 function iconFor(name: string) {
   return categoryFor(name)
 }
 
-function commitBar() {
+function dedupe(list: string[]) {
   const seen = new Set<string>()
   const cleaned: string[] = []
-  for (const item of barItems.value) {
+  for (const item of list) {
     const key = item.toLowerCase()
     if (seen.has(key)) continue
     seen.add(key)
     cleaned.push(item)
-    if (cleaned.length >= MAX_ON_BAR) break
   }
-  barItems.value = cleaned
+  return cleaned
+}
+
+function commit() {
+  const bar = dedupe(barItems.value).slice(0, MAX_ON_BAR)
+  const shelf = dedupe(shelfItems.value)
+  barItems.value = bar
+  shelfItems.value = shelf
+
   internalUpdate = true
-  cabinet.setActiveForShake(cleaned)
+  cabinet.setActiveForShake(bar)
+  cabinet.setItems(dedupe([...shelf, ...bar]))
   void nextTick(() => {
     internalUpdate = false
   })
@@ -47,8 +72,24 @@ function canPutOnBar() {
   return barItems.value.length < MAX_ON_BAR
 }
 
-function onShelfCardClick(name: string) {
-  cabinet.toggleActive(name)
+function onBarChange(event: { added?: { element: string } }) {
+  if (event.added) {
+    triggerShine(event.added.element)
+  }
+  commit()
+}
+
+function triggerShine(name: string) {
+  justLocked.value = name
+  if (shineTimer) clearTimeout(shineTimer)
+  shineTimer = setTimeout(() => {
+    justLocked.value = null
+    shineTimer = null
+  }, SHINE_MS)
+}
+
+function isShining(name: string) {
+  return justLocked.value?.toLowerCase() === name.toLowerCase()
 }
 </script>
 
@@ -60,34 +101,30 @@ function onShelfCardClick(name: string) {
 
     <draggable
       v-else
+      v-model="shelfItems"
       class="cabinet-carousel__shelf"
-      :list="cabinet.items"
-      :group="{ name: 'cabinet', pull: 'clone', put: false }"
-      :sort="false"
+      :group="{ name: 'cabinet', pull: true, put: true }"
+      :sort="true"
+      :animation="180"
+      :force-fallback="true"
+      :fallback-on-body="true"
+      fallback-class="card-drag-ghost"
       :delay="120"
       :delay-on-touch-only="true"
       :touch-start-threshold="6"
       :item-key="(name: string) => name"
       role="list"
       aria-label="Your cabinet"
+      @change="commit"
     >
       <template #item="{ element }">
         <div class="shelf-card-wrap" role="listitem">
-          <button
-            type="button"
-            class="shelf-card"
-            :class="{ 'shelf-card--active': cabinet.isActive(element) }"
-            :aria-pressed="cabinet.isActive(element)"
-            @click="onShelfCardClick(element)"
-          >
-            <span v-if="cabinet.isActive(element)" class="shelf-card__tick" aria-hidden="true">
-              ✓
-            </span>
+          <div class="shelf-card">
             <span class="shelf-card__art">
               <IngredientGraphic :icon="iconFor(element)" />
             </span>
             <span class="shelf-card__label">{{ element }}</span>
-          </button>
+          </div>
           <button
             type="button"
             class="shelf-card__remove"
@@ -101,35 +138,42 @@ function onShelfCardClick(name: string) {
     </draggable>
 
     <section class="cabinet-bar" aria-label="The bar — items selected for this shake">
-      <h2>The bar</h2>
-      <draggable
-        v-model="barItems"
-        class="cabinet-bar__drop"
-        :class="{ 'cabinet-bar__drop--empty': !barItems.length }"
-        :group="{ name: 'cabinet', pull: true, put: canPutOnBar }"
-        :item-key="(name: string) => name"
-        role="list"
-        @change="commitBar"
-      >
-        <template #item="{ element }">
-          <button
-            type="button"
-            class="bar-item"
-            role="listitem"
-            :aria-label="`Remove ${element} from the bar`"
-            @click="cabinet.toggleActive(element)"
+      <h2 class="cabinet-bar__title">The bar</h2>
+      <div class="cabinet-bar__slots">
+        <div class="cabinet-bar__underlay" aria-hidden="true">
+          <div
+            v-for="n in MAX_ON_BAR"
+            :key="n"
+            class="bar-slot"
+            :class="{ 'bar-slot--empty': n > barItems.length }"
           >
-            <span class="bar-item__art">
-              <IngredientGraphic :icon="iconFor(element)" />
-            </span>
-            <span class="bar-item__label">{{ element }}</span>
-            <span class="bar-item__remove" aria-hidden="true">×</span>
-          </button>
-        </template>
-      </draggable>
-      <p v-if="!barItems.length" class="cabinet-bar__placeholder">
-        Drag a bottle here to use it for this shake.
-      </p>
+            <span v-if="n > barItems.length" class="bar-slot__label">Empty</span>
+          </div>
+        </div>
+        <draggable
+          v-model="barItems"
+          class="cabinet-bar__drop"
+          :group="{ name: 'cabinet', pull: true, put: canPutOnBar }"
+          :animation="180"
+          :force-fallback="true"
+          :fallback-on-body="true"
+          fallback-class="card-drag-ghost"
+          :item-key="(name: string) => name"
+          role="list"
+          @change="onBarChange"
+        >
+          <template #item="{ element }">
+            <div class="shelf-card-wrap shelf-card-wrap--bar" role="listitem">
+              <div class="shelf-card shelf-card--bar" :class="{ 'shelf-card--shiny': isShining(element) }">
+                <span class="shelf-card__art">
+                  <IngredientGraphic :icon="iconFor(element)" />
+                </span>
+                <span class="shelf-card__label">{{ element }}</span>
+              </div>
+            </div>
+          </template>
+        </draggable>
+      </div>
     </section>
   </div>
 </template>
@@ -155,7 +199,7 @@ function onShelfCardClick(name: string) {
   gap: var(--space-md);
   flex: 1;
   min-height: 7.5rem;
-  align-items: stretch;
+  align-items: center;
   overflow-x: auto;
   overflow-y: visible;
   padding: var(--space-sm) var(--space-md) var(--space-md);
@@ -177,13 +221,12 @@ function onShelfCardClick(name: string) {
   justify-content: center;
   gap: var(--space-sm);
   width: 6.25rem;
-  height: 100%;
-  min-height: 6.75rem;
+  height: 6.75rem;
   padding: var(--space-sm) var(--space-xs) var(--space-md);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: transparent;
-  color: var(--color-text-muted);
+  color: var(--color-text);
   cursor: grab;
   transition:
     border-color 0.15s ease,
@@ -199,11 +242,6 @@ function onShelfCardClick(name: string) {
   cursor: grabbing;
 }
 
-.shelf-card--active {
-  border-color: var(--color-success);
-  color: var(--color-text);
-}
-
 .shelf-card__art {
   display: block;
   width: 3.5rem;
@@ -215,22 +253,6 @@ function onShelfCardClick(name: string) {
   line-height: 1.15;
   text-align: center;
   word-break: break-word;
-}
-
-.shelf-card__tick {
-  position: absolute;
-  top: 0.35rem;
-  left: 0.35rem;
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  width: 1.35rem;
-  height: 1.35rem;
-  border-radius: 999px;
-  background: var(--color-success);
-  color: #0f1214;
-  font-size: 0.8rem;
-  font-weight: 700;
 }
 
 .shelf-card__remove {
@@ -266,52 +288,118 @@ function onShelfCardClick(name: string) {
 }
 
 .cabinet-bar__title {
-  margin: 0 0 var(--space-xs);
+  margin: 0 0 var(--space-sm);
   font-family: var(--font-display);
   font-size: 0.9rem;
   color: var(--color-text);
 }
 
-.cabinet-bar__drop {
+.cabinet-bar__slots {
+  position: relative;
+  width: calc(2 * 6.25rem + var(--space-md));
+  margin: 0 auto;
+}
+
+.cabinet-bar__underlay {
+  position: absolute;
+  inset: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
-  min-height: 3.75rem;
-  align-items: center;
+  gap: var(--space-md);
+  pointer-events: none;
 }
 
-.cabinet-bar__placeholder {
-  margin: var(--space-xs) 0 0;
-  font-size: 0.75rem;
-  font-style: italic;
+.bar-slot {
+  width: 6.25rem;
+  min-height: 6.75rem;
+  border-radius: var(--radius-lg);
+}
+
+.bar-slot--empty {
+  display: grid;
+  place-items: center;
+  background: var(--color-bg);
+}
+
+.bar-slot__label {
+  font-size: 0.8rem;
   color: var(--color-text-muted);
 }
 
-.bar-item {
-  display: inline-flex;
+.cabinet-bar__drop {
+  position: relative;
+  display: flex;
+  gap: var(--space-md);
+  min-height: 6.75rem;
   align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-xs) var(--space-sm);
-  border: 1px solid var(--color-success);
-  border-radius: 999px;
-  background: transparent;
+}
+
+.shelf-card-wrap--bar {
+  scroll-snap-align: none;
+}
+
+.shelf-card--bar {
+  border-color: var(--color-accent);
+}
+
+.shelf-card-wrap.sortable-chosen .shelf-card {
+  border-color: var(--color-accent);
   color: var(--color-text);
-  cursor: pointer;
+  box-shadow: 0 0 0 1px var(--color-accent);
 }
 
-.bar-item__art {
-  display: block;
-  width: 1.75rem;
-  height: 1.75rem;
+/* Hide the live placeholder while dragging so the destination card only
+   appears once the user drops it (the floating drag preview stays visible). */
+.shelf-card-wrap.sortable-ghost {
+  opacity: 0;
 }
 
-.bar-item__label {
-  font-size: 0.85rem;
+.shelf-card--shiny {
+  position: relative;
+  overflow: hidden;
+  animation: bar-card-pop 0.45s ease;
 }
 
-.bar-item__remove {
-  font-size: 1.05rem;
-  line-height: 1;
-  color: var(--color-text-muted);
+.shelf-card--shiny::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(201, 169, 98, 0.35) 45%,
+    rgba(230, 207, 150, 0.85) 50%,
+    rgba(201, 169, 98, 0.35) 55%,
+    transparent 65%,
+    transparent 100%
+  );
+  transform: translateX(-120%);
+  animation: bar-card-shine 0.9s ease forwards;
+  pointer-events: none;
+}
+
+@keyframes bar-card-shine {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes bar-card-pop {
+  0% {
+    transform: scale(0.92);
+  }
+  55% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shelf-card--shiny,
+  .shelf-card--shiny::after {
+    animation: none;
+  }
 }
 </style>

@@ -50,26 +50,31 @@ describe('CabinetCarousel', () => {
     expect(wrapper.findAll('.shelf-card__art svg')).toHaveLength(3)
   })
 
-  it('marks active items with a green tick and reflects the bar', () => {
+  it('moves active items to the bar and out of the shelf', () => {
     const cabinet = useCabinetStore()
     cabinet.items = ['Gin', 'Tonic']
     cabinet.activeForShake = ['Gin']
 
     const wrapper = mountCarousel()
-    expect(wrapper.findAll('.shelf-card__tick')).toHaveLength(1)
-    expect(wrapper.findAll('.bar-item')).toHaveLength(1)
-    expect(wrapper.find('.bar-item__label').text()).toBe('Gin')
+
+    const shelfLabels = wrapper
+      .findAll('.cabinet-carousel__shelf .shelf-card__label')
+      .map((n) => n.text())
+    expect(shelfLabels).toEqual(['Tonic'])
+
+    const barLabels = wrapper
+      .findAll('.cabinet-bar__drop .shelf-card__label')
+      .map((n) => n.text())
+    expect(barLabels).toEqual(['Gin'])
   })
 
-  it('tapping a card toggles its active state', async () => {
+  it('renders an empty slot outline for each unused bar slot', () => {
     const cabinet = useCabinetStore()
     cabinet.items = ['Gin', 'Tonic']
-    cabinet.activeForShake = []
+    cabinet.activeForShake = ['Gin']
 
     const wrapper = mountCarousel()
-    await wrapper.findAll('.shelf-card')[0].trigger('click')
-    expect(cabinet.isActive('Gin')).toBe(true)
-    expect(wrapper.findAll('.shelf-card__tick')).toHaveLength(1)
+    expect(wrapper.findAll('.bar-slot--empty')).toHaveLength(1)
   })
 
   it('removes an item from the cabinet', async () => {

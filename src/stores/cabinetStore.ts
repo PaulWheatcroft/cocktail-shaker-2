@@ -114,6 +114,10 @@ export const useCabinetStore = defineStore('cabinet', () => {
     activeForShake.value = ingredients.slice(0, 2)
   }
 
+  function setItems(next: string[]) {
+    items.value = [...next]
+  }
+
   return {
     items,
     activeForShake,
@@ -125,6 +129,7 @@ export const useCabinetStore = defineStore('cabinet', () => {
     isActive,
     ingredientsForShake,
     setActiveForShake,
+    setItems,
     replaceFromRemote,
   }
 })

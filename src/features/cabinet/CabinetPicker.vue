@@ -75,9 +75,6 @@ function pickSuggestion(name: string) {
       >
         Your cabinet
       </h2>
-      <p class="cabinet-picker__stock-hint">
-        Drag up to two onto the bar (or tap) to use them for this shake.
-      </p>
 
       <CabinetCarousel />
 
@@ -120,12 +117,6 @@ function pickSuggestion(name: string) {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: visible;
-}
-
-.cabinet-picker__stock-hint {
-  margin: 0 0 var(--space-sm);
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
 }
 
 .cabinet-picker__footer {

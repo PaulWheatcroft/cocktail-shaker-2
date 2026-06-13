@@ -1,4 +1,4 @@
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import type { LocalCabinetSnapshot } from '@/services/persistence/sync'
 import { pushCabinet } from '@/services/persistence/sync'
@@ -40,8 +40,14 @@ export const useCabinetStore = defineStore('cabinet', () => {
     )
   }
 
+  // When we apply state pulled from the server we must persist it locally but
+  // NOT push it straight back — doing so raced with the login merge's own write
+  // and caused duplicate-key sync failures.
+  let applyingRemote = false
+
   watch([items, activeForShake], () => {
     persist()
+    if (applyingRemote) return
     queueRemoteSync()
   }, { deep: true })
 
@@ -60,8 +66,12 @@ export const useCabinetStore = defineStore('cabinet', () => {
   }
 
   function replaceFromRemote(snapshot: LocalCabinetSnapshot) {
+    applyingRemote = true
     items.value = [...snapshot.items]
     activeForShake.value = snapshot.activeForShake.slice(0, 2)
+    void nextTick(() => {
+      applyingRemote = false
+    })
   }
 
   function addItem(name: string) {

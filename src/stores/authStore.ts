@@ -8,6 +8,18 @@ import { useCabinetStore } from './cabinetStore'
 import { useFavouritesStore } from './favouritesStore'
 import { usePreferencesStore } from './preferencesStore'
 
+function describeSyncError(e: unknown): string {
+  if (e instanceof Error) return e.message
+  if (e && typeof e === 'object') {
+    const o = e as Record<string, unknown>
+    const parts = [o.message, o.details, o.hint, o.code]
+      .filter((v): v is string | number => typeof v === 'string' || typeof v === 'number')
+      .map(String)
+    if (parts.length) return parts.join(' — ')
+  }
+  return 'Could not sync your data.'
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const initialized = ref(false)
@@ -18,7 +30,20 @@ export const useAuthStore = defineStore('auth', () => {
   const isSignedIn = computed(() => user.value !== null)
   const email = computed(() => user.value?.email ?? null)
 
-  async function applyMergedLocalState() {
+  // init() and the onAuthStateChange listener can both ask to sync; dedupe any
+  // overlapping runs so two merges never write the same rows concurrently.
+  let inFlightSync: Promise<void> | null = null
+
+  function applyMergedLocalState(): Promise<void> {
+    if (!user.value) return Promise.resolve()
+    if (inFlightSync) return inFlightSync
+    inFlightSync = runMergeOnLogin().finally(() => {
+      inFlightSync = null
+    })
+    return inFlightSync
+  }
+
+  async function runMergeOnLogin() {
     if (!user.value) return
     syncing.value = true
     authError.value = null
@@ -38,10 +63,11 @@ export const useAuthStore = defineStore('auth', () => {
 
       cabinet.replaceFromRemote(merged.cabinet)
       favourites.replaceFromRemote(merged.favourites)
-      preferences.setHouseStrictness(merged.houseStrictness)
+      preferences.replaceFromRemote(merged.houseStrictness)
       authMessage.value = 'Your cabinet and favourites are synced.'
     } catch (e) {
-      authError.value = e instanceof Error ? e.message : 'Could not sync your data.'
+      console.error('[auth] sync failed', e)
+      authError.value = describeSyncError(e)
     } finally {
       syncing.value = false
     }

@@ -319,6 +319,16 @@ deno_version = 1
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# Edge Functions. verify_jwt is disabled locally so the endpoints can be called
+# directly (curl/Postman/browser) without a Supabase auth header. The app still
+# sends the anon key in production where the platform default (verify_jwt = true)
+# applies.
+[functions.recommend]
+verify_jwt = false
+
+[functions.greet]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

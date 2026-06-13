@@ -7,22 +7,27 @@ const preferences = usePreferencesStore()
 <template>
   <section>
     <h1>Preferences</h1>
-    <p>Ranking weight for the house hostess — saved locally and synced when signed in.</p>
+    <p>Saved on this device and synced when you sign in.</p>
 
     <div class="prefs-card">
       <label class="prefs-row">
-        <span>House strictness</span>
+        <span class="prefs-label">House strictness</span>
         <input
           v-model.number="preferences.houseStrictness"
           type="range"
           min="0"
           max="100"
           step="5"
+          aria-describedby="house-strictness-help"
         />
         <span class="prefs-value">{{ preferences.houseStrictness }}%</span>
       </label>
-      <p class="prefs-note">
-        Affects editorial ranking weight only — recommendations stay deterministic.
+      <p id="house-strictness-help" class="prefs-note">
+        How opinionated the hostess is when she orders your matching drinks.
+        <strong>Low</strong> — classics and novelty cocktails are treated much the same.
+        <strong>High</strong> — proper classics (martini, negroni, old fashioned and the like)
+        rise to the top; flashy party drinks sink.
+        Your cabinet still decides what you can make — this only changes which match she puts first.
       </p>
     </div>
   </section>
@@ -44,9 +49,14 @@ const preferences = usePreferencesStore()
   align-items: center;
 }
 
-.prefs-row span:first-child {
+.prefs-label {
   grid-column: 1 / -1;
   color: var(--color-text);
+}
+
+.prefs-note strong {
+  color: var(--color-text);
+  font-weight: 600;
 }
 
 .prefs-value {

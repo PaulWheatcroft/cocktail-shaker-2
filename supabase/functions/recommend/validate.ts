@@ -41,21 +41,20 @@ export function buildFallback(candidates: HostessCandidateInput[]): HostessRespo
   }
 }
 
-function parsePresentations(
-  raw: unknown,
+function findCandidate(
   candidates: HostessCandidateInput[],
+  name: string,
+): HostessCandidateInput | undefined {
+  return candidates.find((c) => normalizeName(c.name) === normalizeName(name))
+}
+
+// The LLM is now asked to write only the primary drink's presentation, so we
+// extract that single flamboyant entry and ignore any extras it may have added.
+function parsePrimaryPresentation(
+  raw: unknown,
   primaryRecommendation: string,
-  alternatives: string[],
-): DrinkPresentationBody[] | null {
+): DrinkPresentationBody | null {
   if (!Array.isArray(raw)) return null
-
-  const names = new Set(candidates.map((c) => normalizeName(c.name)))
-  const required = new Set([
-    normalizeName(primaryRecommendation),
-    ...alternatives.map(normalizeName),
-  ])
-
-  const presentations: DrinkPresentationBody[] = []
 
   for (const item of raw) {
     if (!item || typeof item !== 'object') continue
@@ -70,18 +69,12 @@ function parsePresentations(
       : []
 
     if (!name || !pitch || !preparationSteps.length) continue
-    if (!names.has(normalizeName(name))) continue
+    if (normalizeName(name) !== normalizeName(primaryRecommendation)) continue
 
-    presentations.push({ name, pitch, preparationSteps })
+    return { name, pitch, preparationSteps }
   }
 
-  for (const req of required) {
-    if (!presentations.some((p) => normalizeName(p.name) === req)) {
-      return null
-    }
-  }
-
-  return presentations.length ? presentations : null
+  return null
 }
 
 export function validateResponse(
@@ -116,14 +109,17 @@ export function validateResponse(
         .slice(0, 4)
     : ['Make it drier', 'Show another option']
 
-  const drinkPresentations = parsePresentations(
-    o.drinkPresentations,
-    candidates,
-    primaryRecommendation,
-    alternatives,
-  )
+  // The LLM only writes the primary presentation; alternative presentations are
+  // composed deterministically from candidate data to keep the call ~3x faster.
+  const primaryPresentation = parsePrimaryPresentation(o.drinkPresentations, primaryRecommendation)
+  if (!primaryPresentation) return null
 
-  if (!drinkPresentations) return null
+  const alternativePresentations = alternatives
+    .map((name) => findCandidate(candidates, name))
+    .filter((c): c is HostessCandidateInput => Boolean(c))
+    .map(buildPresentation)
+
+  const drinkPresentations = [primaryPresentation, ...alternativePresentations]
 
   return {
     verdict,

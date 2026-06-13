@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { pushPreferences } from '@/services/persistence/sync'
 import { useAuthStore } from './authStore'
@@ -20,8 +20,13 @@ function loadHouseStrictness(): number {
 export const usePreferencesStore = defineStore('preferences', () => {
   const houseStrictness = ref(loadHouseStrictness())
 
+  // Applying a value pulled from the server should persist locally but not push
+  // it straight back, mirroring the cabinet/favourites stores.
+  let applyingRemote = false
+
   watch(houseStrictness, (value) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ houseStrictness: value }))
+    if (applyingRemote) return
     queueRemoteSync(value)
   })
 
@@ -40,5 +45,13 @@ export const usePreferencesStore = defineStore('preferences', () => {
     houseStrictness.value = Math.min(100, Math.max(0, value))
   }
 
-  return { houseStrictness, setHouseStrictness }
+  function replaceFromRemote(value: number) {
+    applyingRemote = true
+    houseStrictness.value = Math.min(100, Math.max(0, value))
+    void nextTick(() => {
+      applyingRemote = false
+    })
+  }
+
+  return { houseStrictness, setHouseStrictness, replaceFromRemote }
 })

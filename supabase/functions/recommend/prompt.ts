@@ -15,7 +15,7 @@ Always respond with valid JSON only (no markdown), matching this schema:
   "followUpSuggestions": ["string — 2-4 short refinement chips"],
   "drinkPresentations": [
     {
-      "name": "string — exact candidate name",
+      "name": "string — MUST equal primaryRecommendation exactly",
       "pitch": "string — 2-3 flamboyant sentences describing this drink for the user",
       "preparationSteps": ["string — 5 to 8 theatrical preparation steps"]
     }
@@ -27,9 +27,9 @@ Rules:
 - alternatives must be names from topCandidates only (max 2).
 - At most one cutting remark in the verdict; clarity over jokes.
 - followUpSuggestions should be actionable (e.g. "Make it drier", "Something more bitter").
-- drinkPresentations MUST cover the primaryRecommendation plus every name in alternatives (up to 3 entries total, matching top 3 candidates when available).
+- drinkPresentations MUST contain EXACTLY ONE entry, for the primaryRecommendation only. Do NOT write presentations for the alternatives — the application composes those itself.
 
-drinkPresentations (each entry):
+drinkPresentations (the single primary entry):
 - Rewrite sourceInstructions and ingredients into theatrical, flamboyant, outrageously posh hostess voice.
 - pitch: vivid, opinionated description — why this drink matters, its character, its place in civilised drinking.
 - preparationSteps: 5-8 vivid sentences; preserve every factual step, technique, order, glassware, and measure. Do not invent quantities, tools, or methods.

@@ -54,15 +54,18 @@ export async function pushCabinet(userId: string, snapshot: LocalCabinetSnapshot
   if (deleteError) throw deleteError
   if (items.length === 0) return
 
-  const { error: insertError } = await supabase.from('cabinet_items').insert(
+  // Upsert (not insert) so a concurrent sync run that re-inserts the same
+  // ingredient cannot trigger a unique-constraint violation (23505).
+  const { error: upsertError } = await supabase.from('cabinet_items').upsert(
     items.map((ingredient_name, index) => ({
       user_id: userId,
       ingredient_name,
       sort_order: index,
     })),
+    { onConflict: 'user_id,ingredient_name' },
   )
 
-  if (insertError) throw insertError
+  if (upsertError) throw upsertError
 }
 
 export async function pullFavourites(userId: string): Promise<FavouriteSnapshot[]> {
@@ -94,15 +97,17 @@ export async function pushFavourites(userId: string, favourites: FavouriteSnapsh
   if (deleteError) throw deleteError
   if (favourites.length === 0) return
 
-  const { error: insertError } = await supabase.from('favourite_cocktails').insert(
+  // Upsert (not insert) to stay resilient against concurrent sync runs.
+  const { error: upsertError } = await supabase.from('favourite_cocktails').upsert(
     favourites.map((fav) => ({
       user_id: userId,
       cocktail_id: fav.cocktailId,
       cocktail_name: fav.cocktailName,
     })),
+    { onConflict: 'user_id,cocktail_id' },
   )
 
-  if (insertError) throw insertError
+  if (upsertError) throw upsertError
 }
 
 export async function pullPreferences(userId: string): Promise<number | null> {

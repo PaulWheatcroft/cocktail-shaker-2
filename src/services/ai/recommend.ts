@@ -4,7 +4,12 @@ import { composeHostessRequest } from './composeHostessRequest'
 import { buildFallbackResponse } from './buildFallbackResponse'
 import type { HostessRequest, HostessResponse, RankedCandidate } from '@/types/domain'
 
-const TIMEOUT_MS = 12_000
+// The hostess call hits an LLM (gpt-4o-mini) that writes a pitch + 5-8 prep steps
+// for up to 3 drinks, which measured ~30s end-to-end; a validation failure can add
+// a second strict-retry call. The previous 12s budget aborted nearly every call,
+// silently falling back to the top-ranked candidate (same drink every time, refine
+// chips appeared to do nothing). Give enough headroom for the real worst case.
+const TIMEOUT_MS = 45_000
 
 export interface RecommendResult {
   response: HostessResponse

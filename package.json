@@ -16,7 +16,8 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "check:ingredient-categories": "tsx scripts/check-ingredient-categories.ts",
-    "generate:category-images": "tsx scripts/generate-category-images.ts"
+    "generate:category-images": "tsx scripts/generate-category-images.ts",
+    "generate:shaker-image": "tsx scripts/generate-shaker-image.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.107.0",

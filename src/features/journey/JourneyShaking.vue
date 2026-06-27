@@ -9,14 +9,11 @@ const journey = useJourneyStore()
 const session = useSessionStore()
 
 const quip = computed(() => {
-  if (session.status === 'loading') {
-    return 'Consulting the spirits and your regrettable cabinet…'
-  }
-  if (session.hostessStatus === 'loading') {
-    return 'The hostess is forming an opinion…'
-  }
   if (session.status === 'error') {
     return session.errorMessage ?? 'Something went awry.'
+  }
+  if (session.status === 'loading' || session.hostessStatus === 'loading') {
+    return 'The hostess is forming an opinion…'
   }
   return 'Almost ready…'
 })

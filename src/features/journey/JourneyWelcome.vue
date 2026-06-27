@@ -13,9 +13,9 @@ const journey = useJourneyStore()
 
       <div class="journey-welcome__card">
         <div class="journey-welcome__scroll">
-          <p v-if="journey.greetingLoading" class="journey-welcome__loading">
+          <h1 v-if="journey.greetingLoading" class="journey-welcome__headline">
             The hostess is arriving…
-          </p>
+          </h1>
           <template v-else-if="journey.greeting">
             <h1 class="journey-welcome__headline">{{ journey.greeting.greeting }}</h1>
             <p v-if="journey.greeting.favouritesCommentary" class="journey-welcome__commentary">
@@ -112,12 +112,6 @@ const journey = useJourneyStore()
   line-height: 1.6;
   margin: 0;
   font-style: italic;
-}
-
-.journey-welcome__loading {
-  font-family: var(--font-display);
-  color: var(--color-accent);
-  margin: 0;
 }
 
 .journey-welcome__actions {

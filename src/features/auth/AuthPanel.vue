@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/authStore'
 
 defineProps<{
   compact?: boolean
+  embedded?: boolean
 }>()
 
 const auth = useAuthStore()
@@ -18,7 +19,11 @@ function isLocalSupabase(): boolean {
 </script>
 
 <template>
-  <section v-if="isSupabaseConfigured()" class="auth" :class="{ 'auth--compact': compact }">
+  <section
+    v-if="isSupabaseConfigured()"
+    class="auth"
+    :class="{ 'auth--compact': compact, 'auth--embedded': embedded }"
+  >
     <template v-if="auth.isSignedIn">
       <p class="auth__signed-in">
         Signed in as <strong>{{ auth.email }}</strong>
@@ -41,7 +46,12 @@ function isLocalSupabase(): boolean {
         <AppButton variant="primary" @click="auth.sendMagicLink(emailDraft)">Send magic link</AppButton>
       </div>
       <p class="auth__hint">
-        Cabinet works without an account. Sign in to sync favourites across devices.
+        <template v-if="embedded">
+          Sign in with a magic link to build your cabinet and sync favourites across devices.
+        </template>
+        <template v-else>
+          Cabinet works without an account. Sign in to sync favourites across devices.
+        </template>
         <template v-if="isLocalSupabase()">
           Local dev: open magic links in
           <a href="http://127.0.0.1:54324" target="_blank" rel="noopener">Inbucket (port 54324)</a>,
@@ -74,6 +84,20 @@ function isLocalSupabase(): boolean {
 
 .auth--compact .auth__hint {
   display: none;
+}
+
+.auth--embedded {
+  margin-bottom: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  width: 100%;
+}
+
+.auth--embedded .auth__form {
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .auth--compact .auth__form {

@@ -78,9 +78,9 @@ const journey = useJourneyStore()
   max-height: min(48vh, 20rem);
   display: flex;
   flex-direction: column;
-  background: rgba(15, 18, 20, 0.45);
-  backdrop-filter: blur(16px) saturate(130%);
-  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  background: rgba(15, 18, 20, 0.6);
+  backdrop-filter: blur(16px) saturate(200%);
+  -webkit-backdrop-filter: blur(16px) saturate(200%);
   border: 1px solid rgba(232, 228, 220, 0.1);
   border-radius: var(--radius-lg);
   box-shadow:
@@ -111,6 +111,7 @@ const journey = useJourneyStore()
 .journey-welcome__headline {
   line-height: 1.35;
   margin: 0 0 var(--space-md);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 .journey-welcome__loading {

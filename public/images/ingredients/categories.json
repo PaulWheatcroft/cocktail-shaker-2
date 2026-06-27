@@ -1,0 +1,74 @@
+{
+  "images": {
+    "clear-spirit": "clear-spirit.webp",
+    "dark-spirit": "dark-spirit.webp",
+    "amber-spirit": "amber-spirit.webp",
+    "absinthe": "absinthe.webp",
+    "cream-liqueur": "cream-liqueur.webp",
+    "liqueur": "liqueur.webp",
+    "bitters": "bitters.webp",
+    "aperitif": "aperitif.webp",
+    "brandy": "brandy.webp",
+    "beer": "beer.webp",
+    "cider": "cider.webp",
+    "soda-lemon": "soda-lemon.webp"
+  },
+  "byIcon": {
+    "gin": "clear-spirit",
+    "vodka": "clear-spirit",
+    "rum": "amber-spirit",
+    "whisky": "amber-spirit",
+    "tequila": "amber-spirit",
+    "brandy": "brandy",
+    "absinthe": "absinthe",
+    "vermouth": "vermouth",
+    "bitters": "bitters",
+    "liqueur": "liqueur",
+    "wine": "wine",
+    "sparkling": "sparkling",
+    "fortified": "fortified",
+    "soda": "soda-lemon",
+    "juice": "juice",
+    "coffee": "coffee",
+    "tea": "tea",
+    "milk": "milk",
+    "syrup": "syrup"
+  },
+  "sodaVariants": [
+    {
+      "image": "soda-lemon",
+      "keywords": ["7-up", "sprite", "lemonade", "lemon-lime", "ginger ale"]
+    },
+    {
+      "image": "soda-cola",
+      "keywords": ["cola", "coke"]
+    },
+    {
+      "image": "soda-orange",
+      "keywords": ["fanta", "orange soda"]
+    }
+  ],
+  "categoryKeywords": [
+    {
+      "image": "dark-spirit",
+      "keywords": ["151 proof", "dark rum", "black rum", "gosling"]
+    },
+    {
+      "image": "cream-liqueur",
+      "keywords": ["advocaat", "baileys", "irish cream"]
+    },
+    {
+      "image": "aperitif",
+      "keywords": ["aperol", "campari"]
+    },
+    {
+      "image": "cider",
+      "keywords": ["cider"]
+    },
+    {
+      "image": "beer",
+      "keywords": ["ale", "beer", "lager", "stout"]
+    }
+  ],
+  "overrides": {}
+}

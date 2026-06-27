@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import draggable from 'vuedraggable'
-import IngredientGraphic from './IngredientGraphic.vue'
-import { categoryFor } from './ingredientGraphics'
+import IngredientArt from './IngredientArt.vue'
 import { useCabinetStore } from '@/stores/cabinetStore'
 
 const MAX_ON_BAR = 2
@@ -43,10 +42,6 @@ watch(
 )
 
 const emptySlots = computed(() => Math.max(0, MAX_ON_BAR - barItems.value.length))
-
-function iconFor(name: string) {
-  return categoryFor(name)
-}
 
 function dedupe(list: string[]) {
   const seen = new Set<string>()
@@ -135,7 +130,7 @@ function isShining(name: string) {
           <div class="shelf-card-wrap" role="listitem">
             <div class="shelf-card">
               <span class="shelf-card__art">
-                <IngredientGraphic :icon="iconFor(element)" />
+                <IngredientArt :name="element" />
               </span>
               <span class="shelf-card__label">{{ element }}</span>
             </div>
@@ -181,7 +176,7 @@ function isShining(name: string) {
             <div class="shelf-card-wrap shelf-card-wrap--bar" role="listitem">
               <div class="shelf-card shelf-card--bar" :class="{ 'shelf-card--shiny': isShining(element) }">
                 <span class="shelf-card__art">
-                  <IngredientGraphic :icon="iconFor(element)" />
+                  <IngredientArt :name="element" />
                 </span>
                 <span class="shelf-card__label">{{ element }}</span>
               </div>

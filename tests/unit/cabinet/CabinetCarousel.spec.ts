@@ -46,8 +46,9 @@ describe('CabinetCarousel', () => {
     const wrapper = mountCarousel()
     const cards = wrapper.findAll('.shelf-card')
     expect(cards).toHaveLength(3)
-    // each card renders an inline SVG graphic
-    expect(wrapper.findAll('.shelf-card__art svg')).toHaveLength(3)
+    // Gin uses a category image; others fall back to SVG
+    const artNodes = wrapper.findAll('.shelf-card__art img, .shelf-card__art svg')
+    expect(artNodes).toHaveLength(3)
   })
 
   it('moves active items to the bar and out of the shelf', () => {

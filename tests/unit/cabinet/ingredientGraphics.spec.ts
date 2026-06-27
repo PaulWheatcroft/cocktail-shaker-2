@@ -38,6 +38,13 @@ describe('categoryFor', () => {
     expect(categoryFor('Ice')).toBe('ice')
   })
 
+  it('maps food and solid ingredients without bottle fallback', () => {
+    expect(categoryFor('Apple')).toBe('food')
+    expect(categoryFor('Apple Juice')).toBe('juice')
+    expect(categoryFor('Apple Brandy')).toBe('brandy')
+    expect(categoryFor('Apple Cider')).toBe('soda')
+  })
+
   it('falls back to a generic bottle for unknown items', () => {
     expect(categoryFor('Dragonfruit Foam')).toBe('bottle')
     expect(categoryFor('')).toBe('bottle')

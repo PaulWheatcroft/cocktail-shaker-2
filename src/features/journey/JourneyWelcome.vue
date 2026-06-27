@@ -13,9 +13,16 @@ const journey = useJourneyStore()
 
       <div class="journey-welcome__card">
         <div class="journey-welcome__scroll">
-          <h1 v-if="journey.greetingLoading" class="journey-welcome__headline">
-            The hostess is arriving…
-          </h1>
+          <div
+            v-if="journey.greetingLoading"
+            class="journey-welcome__loading"
+            role="status"
+            aria-live="polite"
+            aria-label="The hostess is arriving"
+          >
+            <span class="journey-welcome__loader" aria-hidden="true" />
+            <h1 class="journey-welcome__headline">The hostess is arriving…</h1>
+          </div>
           <template v-else-if="journey.greeting">
             <h1 class="journey-welcome__headline">{{ journey.greeting.greeting }}</h1>
             <p v-if="journey.greeting.favouritesCommentary" class="journey-welcome__commentary">
@@ -104,6 +111,40 @@ const journey = useJourneyStore()
 .journey-welcome__headline {
   line-height: 1.35;
   margin: 0 0 var(--space-md);
+}
+
+.journey-welcome__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.journey-welcome__loading .journey-welcome__headline {
+  margin: 0;
+}
+
+.journey-welcome__loader {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 169, 98, 0.22);
+  border-top-color: var(--color-accent);
+  animation: journey-welcome-spin 0.85s linear infinite;
+}
+
+@keyframes journey-welcome-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey-welcome__loader {
+    animation: none;
+    border-top-color: rgba(201, 169, 98, 0.55);
+    opacity: 0.85;
+  }
 }
 
 .journey-welcome__commentary {

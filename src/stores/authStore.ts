@@ -80,41 +80,52 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
 
-    const callback = await completeAuthCallback(supabase)
-    if (callback.error) {
-      authError.value = callback.error
-    }
+    let sessionUser: User | null = null
 
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      // Initial session is merged in init() below — avoid a duplicate merge and
-      // a signed-in + syncing=false window before favourites are loaded.
-      if (event === 'INITIAL_SESSION') return
-
-      if (event === 'SIGNED_IN' && session?.user) {
-        syncing.value = true
-        user.value = session.user
-        await applyMergedLocalState()
-        return
+    try {
+      const callback = await completeAuthCallback(supabase)
+      if (callback.error) {
+        authError.value = callback.error
       }
 
-      user.value = session?.user ?? null
-    })
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'INITIAL_SESSION') return
 
-    const { data } = await supabase.auth.getSession()
-    const sessionUser = data.session?.user ?? null
+        if (event === 'SIGNED_IN' && session?.user) {
+          syncing.value = true
+          user.value = session.user
+          await applyMergedLocalState()
+          return
+        }
+
+        if (event === 'SIGNED_OUT') {
+          user.value = null
+          syncing.value = false
+          return
+        }
+
+        user.value = session?.user ?? null
+      })
+
+      const { data } = await supabase.auth.getSession()
+      sessionUser = data.session?.user ?? null
+
+      if (sessionUser) {
+        syncing.value = true
+        user.value = sessionUser
+      } else {
+        user.value = null
+        if (callback.handled && !callback.error) {
+          authMessage.value = 'Signed in successfully.'
+        }
+      }
+    } finally {
+      initialized.value = true
+    }
 
     if (sessionUser) {
-      syncing.value = true
-      user.value = sessionUser
       await applyMergedLocalState()
-    } else {
-      user.value = null
-      if (callback.handled && !callback.error) {
-        authMessage.value = 'Signed in successfully.'
-      }
     }
-
-    initialized.value = true
   }
 
   async function sendMagicLink(emailAddress: string) {

@@ -62,8 +62,9 @@ describe('journeyStore greeting timing', () => {
     expect(journey.greeting?.greeting).toBe('The bar remembers you.')
   })
 
-  it('fetches greeting once auth init completes with favourites already synced', async () => {
+  it('waits for auth sync before deciding generic vs LLM fetch', async () => {
     const auth = useAuthStore()
+    auth.initialized = true
     auth.syncing = true
     auth.user = { id: 'user-1' } as never
 
@@ -73,14 +74,29 @@ describe('journeyStore greeting timing', () => {
     await flush()
 
     expect(journey.greetingLoaded).toBe(false)
+    expect(journey.greetingLoading).toBe(true)
     expect(mockFetchGreeting).not.toHaveBeenCalled()
 
     auth.syncing = false
-    auth.initialized = true
     await flush()
     await flush()
 
     expect(mockFetchGreeting).toHaveBeenCalledWith(['Negroni'])
-    expect(journey.greeting?.greeting).toBe('The bar remembers you.')
+    expect(journey.greetingLoaded).toBe(true)
+  })
+
+  it('shows generic greeting when signed out after auth init', async () => {
+    const auth = useAuthStore()
+    auth.initialized = true
+    auth.syncing = false
+    auth.user = null
+
+    const journey = useJourneyStore()
+    await flush()
+
+    expect(journey.greetingLoading).toBe(false)
+    expect(journey.greetingLoaded).toBe(true)
+    expect(journey.greeting?.greeting).toContain('Welcome to the bar')
+    expect(mockFetchGreeting).not.toHaveBeenCalled()
   })
 })

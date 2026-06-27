@@ -30,6 +30,8 @@ export const useJourneyStore = defineStore('journey', () => {
       return
     }
 
+    // Signed in but favourites not yet loaded — only treat as "no favourites"
+    // once auth bootstrap is fully complete (initialized + !syncing).
     if (!auth.isSignedIn || favourites.count === 0) {
       greeting.value = { ...GENERIC_GREETING }
       greetingLoading.value = false
@@ -98,6 +100,12 @@ export const useJourneyStore = defineStore('journey', () => {
 
   function resetToWelcome() {
     step.value = 'welcome'
+    const auth = useAuthStore()
+    const favourites = useFavouritesStore()
+    if (auth.initialized && auth.isSignedIn && !auth.syncing && favourites.count > 0) {
+      greetingLoaded.value = false
+      void loadGreeting()
+    }
   }
 
   watch(

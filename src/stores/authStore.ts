@@ -85,22 +85,36 @@ export const useAuthStore = defineStore('auth', () => {
       authError.value = callback.error
     }
 
-    const { data } = await supabase.auth.getSession()
-    user.value = data.session?.user ?? null
-    initialized.value = true
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      // Initial session is merged in init() below — avoid a duplicate merge and
+      // a signed-in + syncing=false window before favourites are loaded.
+      if (event === 'INITIAL_SESSION') return
 
-    if (user.value) {
+      if (event === 'SIGNED_IN' && session?.user) {
+        syncing.value = true
+        user.value = session.user
+        await applyMergedLocalState()
+        return
+      }
+
+      user.value = session?.user ?? null
+    })
+
+    const { data } = await supabase.auth.getSession()
+    const sessionUser = data.session?.user ?? null
+
+    if (sessionUser) {
+      syncing.value = true
+      user.value = sessionUser
       await applyMergedLocalState()
-    } else if (callback.handled && !callback.error) {
-      authMessage.value = 'Signed in successfully.'
+    } else {
+      user.value = null
+      if (callback.handled && !callback.error) {
+        authMessage.value = 'Signed in successfully.'
+      }
     }
 
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      user.value = session?.user ?? null
-      if (event === 'SIGNED_IN' && session?.user) {
-        await applyMergedLocalState()
-      }
-    })
+    initialized.value = true
   }
 
   async function sendMagicLink(emailAddress: string) {

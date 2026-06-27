@@ -25,8 +25,14 @@ export const useJourneyStore = defineStore('journey', () => {
     const auth = useAuthStore()
     const favourites = useFavouritesStore()
 
+    if (!auth.initialized || (auth.isSignedIn && auth.syncing)) {
+      greetingLoading.value = true
+      return
+    }
+
     if (!auth.isSignedIn || favourites.count === 0) {
       greeting.value = { ...GENERIC_GREETING }
+      greetingLoading.value = false
       greetingLoaded.value = true
       return
     }
@@ -103,13 +109,37 @@ export const useJourneyStore = defineStore('journey', () => {
   )
 
   watch(
-    () => useAuthStore().isSignedIn,
     () => {
-      greetingLoaded.value = false
-      if (step.value === 'welcome') {
-        void loadGreeting()
+      const auth = useAuthStore()
+      const favourites = useFavouritesStore()
+      return {
+        step: step.value,
+        initialized: auth.initialized,
+        signedIn: auth.isSignedIn,
+        syncing: auth.syncing,
+        favCount: favourites.count,
       }
     },
+    (state, prev) => {
+      if (state.step !== 'welcome') return
+
+      const favouritesJustArrived =
+        prev !== undefined &&
+        state.signedIn &&
+        prev.favCount === 0 &&
+        state.favCount > 0
+
+      const signedInChanged = prev !== undefined && prev.signedIn !== state.signedIn
+
+      if (favouritesJustArrived || signedInChanged) {
+        greetingLoaded.value = false
+      }
+
+      if (greetingLoaded.value) return
+
+      void loadGreeting()
+    },
+    { immediate: true },
   )
 
   return {

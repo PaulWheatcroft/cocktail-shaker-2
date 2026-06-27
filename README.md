@@ -53,7 +53,7 @@ Add ingredients, tap **Shake it** — ranked cocktails, recipe card, and hostess
 |---------|-------------|
 | `npm run dev` | Vite + local `recommend` Edge Function (`dev:app`, `dev:functions`) |
 | `npm run dev:app` | Vite only |
-| `npm run dev:functions` | `supabase functions serve recommend` only |
+| `npm run dev:functions` | `supabase functions serve` (recommend + greet) |
 | `npm run build` | Production build + typecheck |
 | `npm run test:unit` | Unit tests |
 | `npm run lint` | ESLint (with fix) |
@@ -76,11 +76,11 @@ Add ingredients, tap **Shake it** — ranked cocktails, recipe card, and hostess
 # One-time: link project (if not done)
 supabase link --project-ref YOUR_REF
 
-# Deploy function (uses Dashboard secrets)
-supabase functions deploy recommend
+# Deploy functions (uses Dashboard secrets)
+supabase functions deploy recommend greet
 
 # Local function dev — also started by `npm run dev` (requires `supabase start`)
-supabase functions serve recommend --env-file supabase/functions/.env.local
+supabase functions serve --env-file supabase/functions/.env.local
 ```
 
 ## Project structure

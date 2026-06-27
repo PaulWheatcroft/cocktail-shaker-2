@@ -51,12 +51,25 @@ export async function fetchGreeting(favouriteNames: string[]): Promise<GreetingR
       error?: string
     }
 
+    if (!res.ok) {
+      console.warn('[greet] request failed', res.status, data.error ?? data)
+      return { ...GENERIC_GREETING }
+    }
+
     if (data.response?.greeting) {
       return data.response
     }
 
+    console.warn('[greet] unexpected response shape', data)
     return { ...GENERIC_GREETING }
-  } catch {
+  } catch (e) {
+    const message =
+      e instanceof Error
+        ? e.name === 'AbortError'
+          ? 'Greet request timed out'
+          : e.message
+        : 'Greet unavailable'
+    console.warn('[greet]', message)
     return { ...GENERIC_GREETING }
   } finally {
     clearTimeout(timeout)

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import JourneyWelcome from '@/features/journey/JourneyWelcome.vue'
 import JourneyCabinet from '@/features/journey/JourneyCabinet.vue'
 import JourneyShaking from '@/features/journey/JourneyShaking.vue'
@@ -7,10 +6,6 @@ import JourneyReveal from '@/features/journey/JourneyReveal.vue'
 import { useJourneyStore } from '@/stores/journeyStore'
 
 const journey = useJourneyStore()
-
-onMounted(() => {
-  journey.beginJourney()
-})
 </script>
 
 <template>

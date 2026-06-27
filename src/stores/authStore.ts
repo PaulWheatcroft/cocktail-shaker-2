@@ -80,52 +80,46 @@ export const useAuthStore = defineStore('auth', () => {
       return
     }
 
-    let sessionUser: User | null = null
-
     try {
       const callback = await completeAuthCallback(supabase)
       if (callback.error) {
         authError.value = callback.error
       }
 
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'INITIAL_SESSION') return
-
-        if (event === 'SIGNED_IN' && session?.user) {
-          syncing.value = true
-          user.value = session.user
-          await applyMergedLocalState()
-          return
-        }
-
-        if (event === 'SIGNED_OUT') {
-          user.value = null
-          syncing.value = false
-          return
-        }
-
-        user.value = session?.user ?? null
-      })
-
       const { data } = await supabase.auth.getSession()
-      sessionUser = data.session?.user ?? null
+      const sessionUser = data.session?.user ?? null
+      user.value = sessionUser
 
       if (sessionUser) {
-        syncing.value = true
-        user.value = sessionUser
-      } else {
-        user.value = null
-        if (callback.handled && !callback.error) {
-          authMessage.value = 'Signed in successfully.'
-        }
+        await applyMergedLocalState()
+      } else if (callback.handled && !callback.error) {
+        authMessage.value = 'Signed in successfully.'
       }
+    } catch (e) {
+      console.error('[auth] init failed', e)
+      authError.value = e instanceof Error ? e.message : 'Auth init failed.'
     } finally {
       initialized.value = true
     }
 
-    if (sessionUser) {
-      await applyMergedLocalState()
-    }
+    // Register after getSession + initial merge — async handlers must not await
+    // here or they can block the auth client and leave the app stuck loading.
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'INITIAL_SESSION') return
+
+      if (event === 'SIGNED_IN' && session?.user) {
+        user.value = session.user
+        void applyMergedLocalState()
+        return
+      }
+
+      if (event === 'SIGNED_OUT') {
+        user.value = null
+        return
+      }
+
+      user.value = session?.user ?? null
+    })
   }
 
   async function sendMagicLink(emailAddress: string) {

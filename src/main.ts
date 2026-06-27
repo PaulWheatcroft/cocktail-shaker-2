@@ -8,12 +8,16 @@ import router from './router'
 import { useAuthStore } from './stores/authStore'
 import './styles/main.css'
 
-const app = createApp(App)
-const pinia = createPinia()
+async function bootstrap() {
+  const app = createApp(App)
+  const pinia = createPinia()
 
-app.use(pinia)
-app.use(router)
+  app.use(pinia)
+  app.use(router)
 
-void useAuthStore(pinia).init()
+  await useAuthStore(pinia).init()
 
-app.mount('#app')
+  app.mount('#app')
+}
+
+void bootstrap()

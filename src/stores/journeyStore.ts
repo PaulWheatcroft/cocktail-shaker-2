@@ -25,13 +25,11 @@ export const useJourneyStore = defineStore('journey', () => {
     const auth = useAuthStore()
     const favourites = useFavouritesStore()
 
-    if (!auth.initialized || (auth.isSignedIn && auth.syncing)) {
+    if (!auth.initialized) {
       greetingLoading.value = true
       return
     }
 
-    // Signed in but favourites not yet loaded — only treat as "no favourites"
-    // once auth bootstrap is fully complete (initialized + !syncing).
     if (!auth.isSignedIn || favourites.count === 0) {
       greeting.value = { ...GENERIC_GREETING }
       greetingLoading.value = false
@@ -102,7 +100,7 @@ export const useJourneyStore = defineStore('journey', () => {
     step.value = 'welcome'
     const auth = useAuthStore()
     const favourites = useFavouritesStore()
-    if (auth.initialized && auth.isSignedIn && !auth.syncing && favourites.count > 0) {
+    if (auth.initialized && auth.isSignedIn && favourites.count > 0) {
       greetingLoaded.value = false
       void loadGreeting()
     }
@@ -120,24 +118,15 @@ export const useJourneyStore = defineStore('journey', () => {
     () => {
       const auth = useAuthStore()
       const favourites = useFavouritesStore()
-      return {
-        step: step.value,
-        initialized: auth.initialized,
-        signedIn: auth.isSignedIn,
-        syncing: auth.syncing,
-        favCount: favourites.count,
-      }
+      return [step.value, auth.initialized, auth.isSignedIn, favourites.count] as const
     },
-    (state, prev) => {
-      if (state.step !== 'welcome') return
+    ([currentStep, initialized, signedIn, favCount], prev) => {
+      if (currentStep !== 'welcome') return
 
       const favouritesJustArrived =
-        prev !== undefined &&
-        state.signedIn &&
-        prev.favCount === 0 &&
-        state.favCount > 0
+        prev !== undefined && signedIn && prev[3] === 0 && favCount > 0
 
-      const signedInChanged = prev !== undefined && prev.signedIn !== state.signedIn
+      const signedInChanged = prev !== undefined && prev[2] !== signedIn
 
       if (favouritesJustArrived || signedInChanged) {
         greetingLoaded.value = false

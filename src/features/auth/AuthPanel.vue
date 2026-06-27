@@ -38,7 +38,7 @@ function isLocalSupabase(): boolean {
             @keydown.enter.prevent="auth.sendMagicLink(emailDraft)"
           />
         </label>
-        <AppButton variant="ghost" @click="auth.sendMagicLink(emailDraft)">Send magic link</AppButton>
+        <AppButton variant="primary" @click="auth.sendMagicLink(emailDraft)">Send magic link</AppButton>
       </div>
       <p class="auth__hint">
         Cabinet works without an account. Sign in to sync favourites across devices.
@@ -79,6 +79,21 @@ function isLocalSupabase(): boolean {
 .auth--compact .auth__form {
   flex-direction: column;
   align-items: stretch;
+}
+
+@media (min-width: 600px) {
+  .auth--compact .auth__form {
+    align-items: flex-start;
+  }
+
+  .auth--compact .auth__label {
+    width: 25%;
+    min-width: 0;
+  }
+
+  .auth--compact .auth__form :deep(.btn) {
+    width: 25%;
+  }
 }
 
 .auth__form {

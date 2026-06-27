@@ -195,6 +195,16 @@ function goToCabinet() {
   color: var(--color-accent);
 }
 
+@media (min-width: 600px) {
+  .shell__brand {
+    font-size: 2.04rem;
+  }
+
+  .shell__nav {
+    padding-top: var(--space-xl);
+  }
+}
+
 .shell__main {
   flex: 1;
   min-height: 0;

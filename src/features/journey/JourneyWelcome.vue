@@ -9,7 +9,7 @@ const journey = useJourneyStore()
 <template>
   <section class="journey-welcome">
     <div class="journey-welcome__stage">
-      <HostessPortrait variant="welcome" class="journey-welcome__portrait" />
+      <HostessPortrait variant="welcome" full-height class="journey-welcome__portrait" />
 
       <div class="journey-welcome__card">
         <div class="journey-welcome__scroll">
@@ -36,7 +36,11 @@ const journey = useJourneyStore()
 
 <style scoped>
 .journey-welcome {
-  padding: var(--space-md) 0 var(--space-2xl);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: 0;
 }
 
 .journey-welcome__stage {
@@ -44,7 +48,9 @@ const journey = useJourneyStore()
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: min(72vh, 36rem);
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
 }
 
 .journey-welcome__stage :deep(.hostess-portrait) {
@@ -53,19 +59,13 @@ const journey = useJourneyStore()
   z-index: 0;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   pointer-events: none;
-}
-
-.journey-welcome__stage :deep(.hostess-portrait__img) {
-  max-height: min(68vh, 34rem);
-  width: auto;
 }
 
 .journey-welcome__card {
   position: relative;
   z-index: 1;
-  margin-top: min(36vh, 17rem);
   width: 100%;
   max-width: 28rem;
   max-height: min(48vh, 20rem);

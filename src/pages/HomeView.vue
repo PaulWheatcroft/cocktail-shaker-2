@@ -54,13 +54,17 @@ onMounted(() => {
   }
 }
 
-.home-journey:has(.journey-cabinet) {
+.home-journey:has(.journey-cabinet),
+.home-journey:has(.journey-welcome) {
   height: calc(100dvh - var(--header-height) - var(--space-lg) * 2);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 @media (max-width: 480px) {
-  .home-journey:has(.journey-cabinet) {
+  .home-journey:has(.journey-cabinet),
+  .home-journey:has(.journey-welcome) {
     height: calc(100dvh - var(--header-height) - var(--space-md) * 2);
   }
 }

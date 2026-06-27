@@ -2,6 +2,7 @@
 defineProps<{
   variant: 'welcome' | 'cabinet' | 'reveal'
   alt?: string
+  fullHeight?: boolean
 }>()
 
 const sources: Record<'welcome' | 'cabinet' | 'reveal', string> = {
@@ -12,7 +13,7 @@ const sources: Record<'welcome' | 'cabinet' | 'reveal', string> = {
 </script>
 
 <template>
-  <figure class="hostess-portrait">
+  <figure class="hostess-portrait" :class="{ 'hostess-portrait--full-height': fullHeight }">
     <img
       :src="sources[variant]"
       :alt="alt ?? 'The hostess'"
@@ -34,5 +35,15 @@ const sources: Record<'welcome' | 'cabinet' | 'reveal', string> = {
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 0 1.5rem rgba(201, 169, 98, 0.35));
+}
+
+.hostess-portrait--full-height {
+  height: 100%;
+  align-items: center;
+}
+
+.hostess-portrait--full-height .hostess-portrait__img {
+  height: 80%;
+  max-height: none;
 }
 </style>

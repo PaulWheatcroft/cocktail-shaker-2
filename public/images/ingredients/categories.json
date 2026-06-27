@@ -25,7 +25,10 @@
     "wine": "wine.webp",
     "liqueur-blue": "liqueur-blue.webp",
     "clear-spirit-lemon": "clear-spirit-lemon.webp",
-    "soda-water": "soda-water.webp"
+    "soda-water": "soda-water.webp",
+    "liqueur-green": "liqueur-green.webp",
+    "wine-white": "wine-white.webp",
+    "soda-diet-cola": "soda-diet-cola.webp"
   },
   "byIcon": {
     "gin": "clear-spirit",
@@ -117,7 +120,8 @@
     {
       "image": "clear-spirit-lemon",
       "keywords": [
-        "bacardi limon"
+        "bacardi limon",
+        "yellow chartreuse"
       ]
     },
     {
@@ -137,9 +141,24 @@
       ]
     },
     {
+      "image": "liqueur-green",
+      "keywords": [
+        "green chartreuse",
+        "green creme de menthe",
+        "green crème de menthe"
+      ]
+    },
+    {
       "image": "liqueur",
       "keywords": [
         "benedictine"
+      ]
+    },
+    {
+      "image": "soda-diet-cola",
+      "keywords": [
+        "diet coke",
+        "diet cola"
       ]
     },
     {
@@ -147,6 +166,12 @@
       "keywords": [
         "carbonated water",
         "club soda"
+      ]
+    },
+    {
+      "image": "wine-white",
+      "keywords": [
+        "white wine"
       ]
     }
   ],

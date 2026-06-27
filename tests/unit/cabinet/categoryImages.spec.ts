@@ -45,6 +45,11 @@ describe('categoryImageSrc', () => {
     expect(categoryImageSrc('Coca-Cola')).toBe('/images/ingredients/soda-cola.webp')
     expect(categoryImageSrc('Almond Flavoring')).toBe('/images/ingredients/aperitif.webp')
     expect(categoryImageSrc('Coconut Liqueur')).toBe('/images/ingredients/clear-spirit.webp')
+    expect(categoryImageSrc('Green Chartreuse')).toBe('/images/ingredients/liqueur-green.webp')
+    expect(categoryImageSrc('Green Creme de Menthe')).toBe('/images/ingredients/liqueur-green.webp')
+    expect(categoryImageSrc('Yellow Chartreuse')).toBe('/images/ingredients/clear-spirit-lemon.webp')
+    expect(categoryImageSrc('White Wine')).toBe('/images/ingredients/wine-white.webp')
+    expect(categoryImageSrc('Diet Coke')).toBe('/images/ingredients/soda-diet-cola.webp')
   })
 })
 

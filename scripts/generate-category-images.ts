@@ -17,12 +17,18 @@ const CATEGORY_PROMPTS: Record<string, string> = {
     'Premium cocktail bar ingredient icon of a small glass of cream or milk, glassy cup, warm gold rim-light, centered, no text.',
   'soda-cola':
     'Premium cocktail bar ingredient icon of a classic red Coca-Cola style soda can, bright red aluminium can with condensation, same style as a premium mixer can, warm gold rim-light, centered, no text.',
+  'soda-diet-cola':
+    'Premium cocktail bar ingredient icon of a silver diet cola soda can, sleek silver aluminium can with condensation, same style as a premium mixer can, warm gold rim-light, centered, no text.',
   'soda-water':
     'Premium cocktail bar ingredient icon of a light blue club soda can, pale sky-blue aluminium can with condensation, same style as a premium mixer can, warm gold rim-light, centered, no text.',
   'liqueur-blue':
     'Premium cocktail bar ingredient icon of a liqueur bottle with vivid electric blue liquid, tall glass bottle, glassy, warm gold rim-light, centered, no text.',
   'clear-spirit-lemon':
     'Premium cocktail bar ingredient icon of a clear spirit bottle with pale yellow lemon-tinted liquid, tall glass bottle like white rum or citrus vodka, glassy, warm gold rim-light, centered, no text.',
+  'liqueur-green':
+    'Premium cocktail bar ingredient icon of a liqueur bottle with vivid green liquid, tall glass bottle like chartreuse or creme de menthe, glassy, warm gold rim-light, centered, no text.',
+  'wine-white':
+    'Premium cocktail bar ingredient icon of a white wine bottle with pale straw-yellow liquid, clear or pale green glass bottle, glassy, warm gold rim-light, centered, no text.',
   'soda-orange':
     'Premium cocktail bar ingredient icon of an orange soda can, bright orange colour, metallic can with condensation, warm gold rim-light, centered, no text.',
   sparkling:

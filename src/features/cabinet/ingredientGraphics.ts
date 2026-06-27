@@ -112,6 +112,7 @@ const RULES: Rule[] = [
       'lemonade',
       'sprite',
       '7-up',
+      'fanta',
       'cider',
       'water',
     ],

@@ -15,7 +15,8 @@
     "format": "prettier --write src/",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
-    "check:ingredient-categories": "tsx scripts/check-ingredient-categories.ts"
+    "check:ingredient-categories": "tsx scripts/check-ingredient-categories.ts",
+    "generate:category-images": "tsx scripts/generate-category-images.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.107.0",
@@ -42,6 +43,7 @@
     "jsdom": "^26.1.0",
     "npm-run-all2": "^8.0.4",
     "prettier": "3.5.3",
+    "sharp": "^0.35.2",
     "tsx": "^4.20.3",
     "typescript": "~5.8.0",
     "vite": "^7.0.0",

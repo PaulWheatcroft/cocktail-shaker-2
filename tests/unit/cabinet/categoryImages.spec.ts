@@ -17,9 +17,9 @@ describe('categoryImageSrc', () => {
     expect(categoryImageSrc('Sprite')).toBe('/images/ingredients/soda-lemon.webp')
   })
 
-  it('returns null for soda variants without assets', () => {
-    expect(categoryImageSrc('Coca-Cola')).toBeNull()
-    expect(categoryImageSrc('Fanta')).toBeNull()
+  it('maps soda variants to their category art', () => {
+    expect(categoryImageSrc('Coca-Cola')).toBe('/images/ingredients/soda-cola.webp')
+    expect(categoryImageSrc('Fanta')).toBe('/images/ingredients/soda-orange.webp')
   })
 
   it('maps keyword categories before icon defaults', () => {
@@ -28,20 +28,15 @@ describe('categoryImageSrc', () => {
     expect(categoryImageSrc('Aperol')).toBe('/images/ingredients/aperitif.webp')
   })
 
-  it('returns null for categories without assets', () => {
-    expect(categoryImageSrc('Champagne')).toBeNull()
-    expect(categoryImageSrc('Red Wine')).toBeNull()
+  it('maps wine and sparkling categories', () => {
+    expect(categoryImageSrc('Champagne')).toBe('/images/ingredients/sparkling.webp')
+    expect(categoryImageSrc('Red Wine')).toBe('/images/ingredients/wine.webp')
   })
 })
 
 describe('missingCategoryImages', () => {
-  it('lists categories referenced but not yet illustrated', () => {
-    const missing = missingCategoryImages()
-    expect(missing).toContain('wine')
-    expect(missing).toContain('sparkling')
-    expect(missing).toContain('soda-cola')
-    expect(missing).toContain('soda-orange')
-    expect(missing).not.toContain('clear-spirit')
+  it('reports no missing category assets when catalogue is complete', () => {
+    expect(missingCategoryImages()).toEqual([])
   })
 
   it('reports available category assets', () => {

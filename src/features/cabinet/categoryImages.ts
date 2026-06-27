@@ -79,14 +79,12 @@ export function categoryImageSrc(name: string): string | null {
   const keywordMatch = resolveKeywordCategory(trimmed, config.categoryKeywords ?? [])
   if (keywordMatch) return keywordMatch
 
-  const icon = categoryFor(trimmed)
-  if (icon === 'soda') {
-    const variantId = matchedSodaVariantId(trimmed)
-    if (variantId) {
-      return imageFileForCategory(variantId)
-    }
+  const sodaVariantId = matchedSodaVariantId(trimmed)
+  if (sodaVariantId) {
+    return imageFileForCategory(sodaVariantId)
   }
 
+  const icon = categoryFor(trimmed)
   return resolveByIcon(icon)
 }
 

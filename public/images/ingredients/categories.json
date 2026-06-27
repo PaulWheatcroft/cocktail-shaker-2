@@ -11,7 +11,18 @@
     "brandy": "brandy.webp",
     "beer": "beer.webp",
     "cider": "cider.webp",
-    "soda-lemon": "soda-lemon.webp"
+    "soda-lemon": "soda-lemon.webp",
+    "coffee": "coffee.webp",
+    "fortified": "fortified.webp",
+    "juice": "juice.webp",
+    "milk": "milk.webp",
+    "soda-cola": "soda-cola.webp",
+    "soda-orange": "soda-orange.webp",
+    "sparkling": "sparkling.webp",
+    "syrup": "syrup.webp",
+    "tea": "tea.webp",
+    "vermouth": "vermouth.webp",
+    "wine": "wine.webp"
   },
   "byIcon": {
     "gin": "clear-spirit",
@@ -37,37 +48,68 @@
   "sodaVariants": [
     {
       "image": "soda-lemon",
-      "keywords": ["7-up", "sprite", "lemonade", "lemon-lime", "ginger ale"]
+      "keywords": [
+        "7-up",
+        "sprite",
+        "lemonade",
+        "lemon-lime",
+        "ginger ale"
+      ]
     },
     {
       "image": "soda-cola",
-      "keywords": ["cola", "coke"]
+      "keywords": [
+        "cola",
+        "coke"
+      ]
     },
     {
       "image": "soda-orange",
-      "keywords": ["fanta", "orange soda"]
+      "keywords": [
+        "fanta",
+        "orange soda"
+      ]
     }
   ],
   "categoryKeywords": [
     {
       "image": "dark-spirit",
-      "keywords": ["151 proof", "dark rum", "black rum", "gosling"]
+      "keywords": [
+        "151 proof",
+        "dark rum",
+        "black rum",
+        "gosling"
+      ]
     },
     {
       "image": "cream-liqueur",
-      "keywords": ["advocaat", "baileys", "irish cream"]
+      "keywords": [
+        "advocaat",
+        "baileys",
+        "irish cream"
+      ]
     },
     {
       "image": "aperitif",
-      "keywords": ["aperol", "campari"]
+      "keywords": [
+        "aperol",
+        "campari"
+      ]
     },
     {
       "image": "cider",
-      "keywords": ["cider"]
+      "keywords": [
+        "cider"
+      ]
     },
     {
       "image": "beer",
-      "keywords": ["ale", "beer", "lager", "stout"]
+      "keywords": [
+        "ale",
+        "beer",
+        "lager",
+        "stout"
+      ]
     }
   ],
   "overrides": {}

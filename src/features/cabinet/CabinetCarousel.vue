@@ -8,6 +8,10 @@ import { useCabinetStore } from '@/stores/cabinetStore'
 const MAX_ON_BAR = 2
 const SHINE_MS = 900
 
+const props = defineProps<{
+  guestMode?: boolean
+}>()
+
 const cabinet = useCabinetStore()
 
 function activeKeys() {
@@ -15,6 +19,7 @@ function activeKeys() {
 }
 
 function buildShelf(): string[] {
+  if (props.guestMode) return []
   const active = activeKeys()
   return cabinet.items.filter((i) => !active.has(i.toLowerCase()))
 }
@@ -56,13 +61,13 @@ function dedupe(list: string[]) {
 
 function commit() {
   const bar = dedupe(barItems.value).slice(0, MAX_ON_BAR)
-  const shelf = dedupe(shelfItems.value)
+  const shelf = props.guestMode ? [] : dedupe(shelfItems.value)
   barItems.value = bar
   shelfItems.value = shelf
 
   internalUpdate = true
   cabinet.setActiveForShake(bar)
-  cabinet.setItems(dedupe([...shelf, ...bar]))
+  cabinet.setItems(props.guestMode ? [...bar] : dedupe([...shelf, ...bar]))
   void nextTick(() => {
     internalUpdate = false
   })
@@ -95,12 +100,12 @@ function isShining(name: string) {
 
 <template>
   <div class="cabinet-carousel">
-    <p v-if="!cabinet.items.length" class="cabinet-carousel__empty">
+    <p v-if="!guestMode && !cabinet.items.length" class="cabinet-carousel__empty">
       Nothing in your cabinet yet — add something above.
     </p>
 
     <draggable
-      v-else
+      v-else-if="!guestMode"
       v-model="shelfItems"
       class="cabinet-carousel__shelf"
       :group="{ name: 'cabinet', pull: true, put: true }"

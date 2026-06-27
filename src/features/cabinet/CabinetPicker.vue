@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import AuthPanel from '@/features/auth/AuthPanel.vue'
 import CabinetCarousel from '@/features/cabinet/CabinetCarousel.vue'
 import { suggestIngredients } from '@/services/cocktailApi/catalog'
 import { useCabinetStore } from '@/stores/cabinetStore'
@@ -7,6 +8,7 @@ import { useCabinetStore } from '@/stores/cabinetStore'
 defineProps<{
   compact?: boolean
   hideSectionHeadings?: boolean
+  guestMode?: boolean
 }>()
 
 const cabinet = useCabinetStore()
@@ -76,7 +78,9 @@ function pickSuggestion(name: string) {
         Your cabinet
       </h2>
 
-      <CabinetCarousel />
+      <AuthPanel v-if="guestMode" embedded />
+
+      <CabinetCarousel :guest-mode="guestMode" />
 
       <footer v-if="$slots.footer" class="cabinet-picker__footer">
         <slot name="footer" />

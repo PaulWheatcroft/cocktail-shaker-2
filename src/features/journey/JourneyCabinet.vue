@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppButton from '@/components/ui/AppButton.vue'
-import AuthPanel from '@/features/auth/AuthPanel.vue'
 import CabinetPicker from '@/features/cabinet/CabinetPicker.vue'
 import { isSupabaseConfigured } from '@/services/supabase/client'
 import { useAuthStore } from '@/stores/authStore'
@@ -14,7 +13,7 @@ const cabinet = useCabinetStore()
 const journey = useJourneyStore()
 const session = useSessionStore()
 
-const showCabinet = computed(
+const hasCabinet = computed(
   () => !isSupabaseConfigured() || auth.isSignedIn,
 )
 </script>
@@ -24,7 +23,7 @@ const showCabinet = computed(
     <header class="journey-cabinet__intro">
       <h1 class="journey-cabinet__title">What shall we shake</h1>
       <p
-        v-if="showCabinet && session.status === 'ready' && session.ranked.length === 0"
+        v-if="session.status === 'ready' && session.ranked.length === 0"
         class="journey-cabinet__empty"
       >
         Nothing matched that combination — try different ingredients.
@@ -32,18 +31,13 @@ const showCabinet = computed(
     </header>
 
     <div class="journey-cabinet__form">
-      <CabinetPicker v-if="showCabinet">
+      <CabinetPicker :guest-mode="!hasCabinet">
         <template #footer>
           <AppButton class="journey-cabinet__shake" :disabled="!cabinet.canShake" @click="journey.startShake()">
             Shake it
           </AppButton>
         </template>
       </CabinetPicker>
-
-      <section v-else class="journey-cabinet__sign-in" aria-label="Your cabinet">
-        <h2 class="journey-cabinet__cabinet-heading">Your cabinet</h2>
-        <AuthPanel embedded />
-      </section>
     </div>
   </section>
 </template>
@@ -88,23 +82,6 @@ const showCabinet = computed(
   flex-direction: column;
   gap: var(--space-sm);
   padding-inline: var(--space-sm);
-}
-
-.journey-cabinet__sign-in {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  padding: var(--space-lg) var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-.journey-cabinet__cabinet-heading {
-  margin: 0;
-  text-align: center;
-  font-size: 1.375rem;
 }
 
 .journey-cabinet__shake {

@@ -22,7 +22,10 @@
     "syrup": "syrup.webp",
     "tea": "tea.webp",
     "vermouth": "vermouth.webp",
-    "wine": "wine.webp"
+    "wine": "wine.webp",
+    "liqueur-blue": "liqueur-blue.webp",
+    "clear-spirit-lemon": "clear-spirit-lemon.webp",
+    "soda-water": "soda-water.webp"
   },
   "byIcon": {
     "gin": "clear-spirit",
@@ -110,7 +113,45 @@
         "lager",
         "stout"
       ]
+    },
+    {
+      "image": "clear-spirit-lemon",
+      "keywords": [
+        "bacardi limon"
+      ]
+    },
+    {
+      "image": "clear-spirit",
+      "keywords": [
+        "absolut",
+        "bacardi"
+      ]
+    },
+    {
+      "image": "liqueur-blue",
+      "keywords": [
+        "blue curacao",
+        "blue curaçao",
+        "blue maui",
+        "aftershock"
+      ]
+    },
+    {
+      "image": "liqueur",
+      "keywords": [
+        "benedictine"
+      ]
+    },
+    {
+      "image": "soda-water",
+      "keywords": [
+        "carbonated water",
+        "club soda"
+      ]
     }
   ],
-  "overrides": {}
+  "overrides": {
+    "Almond Flavoring": "aperitif",
+    "Coconut Liqueur": "clear-spirit"
+  }
 }

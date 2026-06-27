@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
+import { computed, ref } from 'vue'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 import AuthPanel from '@/features/auth/AuthPanel.vue'
 import { useJourneyStore } from '@/stores/journeyStore'
 
 const journey = useJourneyStore()
+const route = useRoute()
 const navOpen = ref(false)
+const isDev = import.meta.env.DEV
+const isWideLayout = computed(() => route.meta.wideLayout === true)
 
 function closeNav() {
   navOpen.value = false
@@ -55,11 +58,14 @@ function goToCabinet() {
         <RouterLink to="/" @click="goToCabinet">Cabinet</RouterLink>
         <RouterLink to="/favourites" @click="closeNav">Favourites</RouterLink>
         <RouterLink to="/preferences" @click="closeNav">Preferences</RouterLink>
+        <RouterLink v-if="isDev" to="/dev/ingredient-images" @click="closeNav">
+          Dev: Image review
+        </RouterLink>
         <AuthPanel compact />
       </nav>
     </Transition>
 
-    <main class="shell__main">
+    <main class="shell__main" :class="{ 'shell__main--wide': isWideLayout }">
       <RouterView v-slot="{ Component }">
         <Transition name="page" mode="out-in">
           <component :is="Component" />
@@ -212,6 +218,11 @@ function goToCabinet() {
   max-width: 42rem;
   margin: 0 auto;
   width: 100%;
+}
+
+.shell__main--wide {
+  max-width: none;
+  padding-inline: var(--space-xl);
 }
 
 @media (max-width: 480px) {

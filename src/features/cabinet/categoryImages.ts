@@ -14,6 +14,15 @@ interface CategoryConfig {
   overrides: Record<string, string>
 }
 
+export type CategoryImageSource = 'override' | 'keyword' | 'sodaVariant' | 'icon' | 'none'
+
+export interface CategoryImageResolution {
+  icon: IconId
+  categoryId: string | null
+  imageSrc: string | null
+  source: CategoryImageSource
+}
+
 const config = categories as CategoryConfig
 
 const overrideLower = new Map(
@@ -35,24 +44,6 @@ function imageFileForCategory(categoryId: string): string | null {
   return `/images/ingredients/${filename}`
 }
 
-function resolveOverride(name: string): string | null {
-  const trimmed = name.trim()
-  if (!trimmed) return null
-  const overrideId = config.overrides[trimmed] ?? overrideLower.get(trimmed.toLowerCase())
-  if (!overrideId) return null
-  return imageFileForCategory(overrideId)
-}
-
-function resolveKeywordCategory(name: string, rules: SodaVariant[]): string | null {
-  const normalized = name.trim().toLowerCase()
-  for (const rule of rules) {
-    if (rule.keywords.some((keyword) => matchesKeyword(normalized, keyword))) {
-      return imageFileForCategory(rule.image)
-    }
-  }
-  return null
-}
-
 function matchedSodaVariantId(name: string): string | null {
   const normalized = name.trim().toLowerCase()
   for (const variant of config.sodaVariants) {
@@ -63,29 +54,62 @@ function matchedSodaVariantId(name: string): string | null {
   return null
 }
 
-function resolveByIcon(icon: IconId): string | null {
+function resolveByIconId(icon: IconId): string | null {
   const categoryId = config.byIcon[icon]
   if (!categoryId) return null
-  return imageFileForCategory(categoryId)
+  return categoryId
 }
 
-export function categoryImageSrc(name: string): string | null {
+export function resolveCategoryImage(name: string): CategoryImageResolution {
   const trimmed = name.trim()
-  if (!trimmed) return null
+  if (!trimmed) {
+    return { icon: categoryFor(''), categoryId: null, imageSrc: null, source: 'none' }
+  }
 
-  const override = resolveOverride(trimmed)
-  if (override) return override
+  const overrideId = config.overrides[trimmed] ?? overrideLower.get(trimmed.toLowerCase())
+  if (overrideId) {
+    return {
+      icon: categoryFor(trimmed),
+      categoryId: overrideId,
+      imageSrc: imageFileForCategory(overrideId),
+      source: 'override',
+    }
+  }
 
-  const keywordMatch = resolveKeywordCategory(trimmed, config.categoryKeywords ?? [])
-  if (keywordMatch) return keywordMatch
+  for (const rule of config.categoryKeywords ?? []) {
+    const normalized = trimmed.toLowerCase()
+    if (rule.keywords.some((keyword) => matchesKeyword(normalized, keyword))) {
+      return {
+        icon: categoryFor(trimmed),
+        categoryId: rule.image,
+        imageSrc: imageFileForCategory(rule.image),
+        source: 'keyword',
+      }
+    }
+  }
 
   const sodaVariantId = matchedSodaVariantId(trimmed)
   if (sodaVariantId) {
-    return imageFileForCategory(sodaVariantId)
+    return {
+      icon: categoryFor(trimmed),
+      categoryId: sodaVariantId,
+      imageSrc: imageFileForCategory(sodaVariantId),
+      source: 'sodaVariant',
+    }
   }
 
   const icon = categoryFor(trimmed)
-  return resolveByIcon(icon)
+  const categoryId = resolveByIconId(icon)
+  return {
+    icon,
+    categoryId,
+    imageSrc: categoryId ? imageFileForCategory(categoryId) : null,
+    source: categoryId ? 'icon' : 'none',
+  }
+}
+
+export function categoryImageSrc(name: string): string | null {
+  return resolveCategoryImage(name).imageSrc
 }
 
 export function missingCategoryImages(): string[] {
@@ -107,4 +131,14 @@ export function missingCategoryImages(): string[] {
 
 export function availableCategoryImages(): string[] {
   return Object.keys(config.images).sort()
+}
+
+export function listCategoryImageAssets(): Array<{ id: string; filename: string; src: string }> {
+  return Object.entries(config.images)
+    .map(([id, filename]) => ({
+      id,
+      filename,
+      src: `/images/ingredients/${filename}`,
+    }))
+    .sort((a, b) => a.id.localeCompare(b.id))
 }

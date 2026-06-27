@@ -40,6 +40,10 @@ export async function suggestIngredients(prefix: string, limit = 12): Promise<st
     .slice(0, limit)
 }
 
+export async function getIngredientCatalog(): Promise<string[]> {
+  return loadCatalog()
+}
+
 export function resetCatalogCache(): void {
   catalogPromise = null
   catalogUpper = null

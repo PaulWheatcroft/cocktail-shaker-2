@@ -32,6 +32,20 @@ describe('categoryImageSrc', () => {
     expect(categoryImageSrc('Champagne')).toBe('/images/ingredients/sparkling.webp')
     expect(categoryImageSrc('Red Wine')).toBe('/images/ingredients/wine.webp')
   })
+
+  it('maps review-export fixes', () => {
+    expect(categoryImageSrc('Absolut citron')).toBe('/images/ingredients/clear-spirit.webp')
+    expect(categoryImageSrc('Bacardi')).toBe('/images/ingredients/clear-spirit.webp')
+    expect(categoryImageSrc('Bacardi Limon')).toBe('/images/ingredients/clear-spirit-lemon.webp')
+    expect(categoryImageSrc('Blue Curacao')).toBe('/images/ingredients/liqueur-blue.webp')
+    expect(categoryImageSrc('Blue Maui')).toBe('/images/ingredients/liqueur-blue.webp')
+    expect(categoryImageSrc('Aftershock')).toBe('/images/ingredients/liqueur-blue.webp')
+    expect(categoryImageSrc('Benedictine')).toBe('/images/ingredients/liqueur.webp')
+    expect(categoryImageSrc('Carbonated Water')).toBe('/images/ingredients/soda-water.webp')
+    expect(categoryImageSrc('Coca-Cola')).toBe('/images/ingredients/soda-cola.webp')
+    expect(categoryImageSrc('Almond Flavoring')).toBe('/images/ingredients/aperitif.webp')
+    expect(categoryImageSrc('Coconut Liqueur')).toBe('/images/ingredients/clear-spirit.webp')
+  })
 })
 
 describe('missingCategoryImages', () => {

@@ -65,22 +65,10 @@ function pickSuggestion(name: string) {
       <p v-if="inputError" class="cabinet-picker__error">{{ inputError }}</p>
     </section>
 
-    <section
-      class="cabinet-picker__stock"
-      aria-label="Your cabinet"
-      :aria-labelledby="hideSectionHeadings ? undefined : 'cabinet-stock-heading'"
-    >
-      <h2
-        v-if="!hideSectionHeadings"
-        id="cabinet-stock-heading"
-        class="cabinet-picker__heading cabinet-picker__heading--center"
-      >
-        Your cabinet
-      </h2>
-
+    <section class="cabinet-picker__stock" aria-label="Your cabinet">
       <AuthPanel v-if="guestMode" embedded />
 
-      <CabinetCarousel :guest-mode="guestMode" />
+      <CabinetCarousel :guest-mode="guestMode" :hide-section-headings="hideSectionHeadings" />
 
       <footer v-if="$slots.footer" class="cabinet-picker__footer">
         <slot name="footer" />
@@ -95,16 +83,6 @@ function pickSuggestion(name: string) {
   flex-direction: column;
   gap: var(--space-md);
   min-height: 0;
-}
-
-.cabinet-picker__heading {
-  margin: 0 0 var(--space-xs);
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.cabinet-picker__heading--center {
-  text-align: center;
 }
 
 .cabinet-picker__add {

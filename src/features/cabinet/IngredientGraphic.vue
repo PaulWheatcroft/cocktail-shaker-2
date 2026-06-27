@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 import type { IconId } from './ingredientGraphics'
 
 const props = defineProps<{
@@ -67,9 +67,52 @@ const CONFIG: Record<IconId, ShapeConfig> = {
   food: { shape: 'plate', fill: '#c9a962' },
 }
 
+function parseHex(hex: string) {
+  const normalized = hex.replace('#', '')
+  const value = Number.parseInt(normalized, 16)
+  return {
+    r: (value >> 16) & 255,
+    g: (value >> 8) & 255,
+    b: value & 255,
+  }
+}
+
+function toHex(r: number, g: number, b: number) {
+  const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)))
+  return `#${[clamp(r), clamp(g), clamp(b)]
+    .map((n) => n.toString(16).padStart(2, '0'))
+    .join('')}`
+}
+
+function adjustHex(hex: string, amount: number) {
+  const { r, g, b } = parseHex(hex)
+  const factor = amount / 100
+  return toHex(r + (255 - r) * factor, g + (255 - g) * factor, b + (255 - b) * factor)
+}
+
+function darkenHex(hex: string, amount: number) {
+  const { r, g, b } = parseHex(hex)
+  const factor = 1 - amount / 100
+  return toHex(r * factor, g * factor, b * factor)
+}
+
+const uid = useId()
 const config = computed(() => CONFIG[props.icon] ?? CONFIG.bottle)
 const shape = computed(() => config.value.shape)
 const fill = computed(() => config.value.fill)
+
+const isGlassShape = computed(() =>
+  ['tallBottle', 'squatBottle', 'wineBottle', 'sparklingBottle', 'glass'].includes(shape.value),
+)
+
+const glassBodyId = computed(() => `glass-body-${uid}`)
+const liquidFillId = computed(() => `liquid-fill-${uid}`)
+const glassShineId = computed(() => `glass-shine-${uid}`)
+
+const glassHighlight = computed(() => adjustHex(fill.value, 55))
+const glassMid = computed(() => adjustHex(fill.value, 15))
+const glassShadow = computed(() => darkenHex(fill.value, 35))
+const liquidColor = computed(() => darkenHex(fill.value, 10))
 </script>
 
 <template>
@@ -80,6 +123,24 @@ const fill = computed(() => config.value.fill)
     aria-hidden="true"
     focusable="false"
   >
+    <defs v-if="isGlassShape">
+      <linearGradient :id="glassBodyId" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" :stop-color="glassHighlight" stop-opacity="0.85" />
+        <stop offset="45%" :stop-color="glassMid" stop-opacity="0.65" />
+        <stop offset="100%" :stop-color="glassShadow" stop-opacity="0.75" />
+      </linearGradient>
+      <linearGradient :id="liquidFillId" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" :stop-color="adjustHex(fill, 10)" stop-opacity="0.95" />
+        <stop offset="100%" :stop-color="liquidColor" stop-opacity="0.98" />
+      </linearGradient>
+      <linearGradient :id="glassShineId" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0" />
+        <stop offset="35%" stop-color="#ffffff" stop-opacity="0.55" />
+        <stop offset="50%" stop-color="#ffffff" stop-opacity="0.15" />
+        <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+
     <g
       stroke="rgba(0, 0, 0, 0.28)"
       stroke-width="1.6"
@@ -90,16 +151,22 @@ const fill = computed(() => config.value.fill)
       <g v-if="shape === 'tallBottle'">
         <rect x="28" y="4" width="8" height="5" rx="1.2" fill="#2c2c2c" />
         <rect x="29" y="8" width="6" height="9" fill="#444" stroke="none" />
-        <rect x="22" y="15" width="20" height="45" rx="7" :fill="fill" />
-        <rect x="24.5" y="35" width="15" height="14" rx="2" fill="rgba(255,255,255,0.82)" />
+        <rect x="22" y="15" width="20" height="45" rx="7" :fill="`url(#${glassBodyId})`" />
+        <rect x="23.5" y="22" width="17" height="36" rx="6" :fill="`url(#${liquidFillId})`" stroke="none" />
+        <rect x="24.5" y="35" width="15" height="14" rx="2" fill="rgba(255,255,255,0.7)" stroke="none" />
+        <ellipse cx="27" cy="28" rx="2.5" ry="14" :fill="`url(#${glassShineId})`" stroke="none" />
+        <rect x="22" y="15" width="20" height="45" rx="7" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.8" />
       </g>
 
       <!-- Squat liqueur / vermouth bottle -->
       <g v-else-if="shape === 'squatBottle'">
         <rect x="27" y="7" width="10" height="5" rx="1.2" fill="#2c2c2c" />
         <rect x="29" y="11" width="6" height="7" fill="#444" stroke="none" />
-        <rect x="18" y="17" width="28" height="42" rx="8" :fill="fill" />
-        <rect x="21" y="33" width="22" height="15" rx="2" fill="rgba(255,255,255,0.82)" />
+        <rect x="18" y="17" width="28" height="42" rx="8" :fill="`url(#${glassBodyId})`" />
+        <rect x="19.5" y="24" width="25" height="32" rx="7" :fill="`url(#${liquidFillId})`" stroke="none" />
+        <rect x="21" y="33" width="22" height="15" rx="2" fill="rgba(255,255,255,0.7)" stroke="none" />
+        <ellipse cx="23" cy="32" rx="2.8" ry="12" :fill="`url(#${glassShineId})`" stroke="none" />
+        <rect x="18" y="17" width="28" height="42" rx="8" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.8" />
       </g>
 
       <!-- Wine / fortified bottle -->
@@ -108,9 +175,21 @@ const fill = computed(() => config.value.fill)
         <rect x="29" y="10" width="6" height="14" fill="#444" stroke="none" />
         <path
           d="M24 60 L24 36 C24 29 27 26 29 24 L35 24 C37 26 40 29 40 36 L40 60 Z"
-          :fill="fill"
+          :fill="`url(#${glassBodyId})`"
         />
-        <rect x="26" y="40" width="12" height="13" rx="1.5" fill="rgba(255,255,255,0.8)" />
+        <path
+          d="M25 58 L25 37 C25 31 27.5 28 29 26.5 L35 26.5 C36.5 28 39 31 39 37 L39 58 Z"
+          :fill="`url(#${liquidFillId})`"
+          stroke="none"
+        />
+        <rect x="26" y="40" width="12" height="13" rx="1.5" fill="rgba(255,255,255,0.7)" stroke="none" />
+        <ellipse cx="26.5" cy="38" rx="2" ry="12" :fill="`url(#${glassShineId})`" stroke="none" />
+        <path
+          d="M24 60 L24 36 C24 29 27 26 29 24 L35 24 C37 26 40 29 40 36 L40 60 Z"
+          fill="none"
+          stroke="rgba(255,255,255,0.18)"
+          stroke-width="0.8"
+        />
       </g>
 
       <!-- Sparkling bottle -->
@@ -120,7 +199,19 @@ const fill = computed(() => config.value.fill)
         <rect x="29.5" y="13" width="5" height="11" fill="#444" stroke="none" />
         <path
           d="M24 60 L24 36 C24 29 27 26 29 24 L35 24 C37 26 40 29 40 36 L40 60 Z"
-          :fill="fill"
+          :fill="`url(#${glassBodyId})`"
+        />
+        <path
+          d="M25 58 L25 37 C25 31 27.5 28 29 26.5 L35 26.5 C36.5 28 39 31 39 37 L39 58 Z"
+          :fill="`url(#${liquidFillId})`"
+          stroke="none"
+        />
+        <ellipse cx="26.5" cy="38" rx="2" ry="12" :fill="`url(#${glassShineId})`" stroke="none" />
+        <path
+          d="M24 60 L24 36 C24 29 27 26 29 24 L35 24 C37 26 40 29 40 36 L40 60 Z"
+          fill="none"
+          stroke="rgba(255,255,255,0.18)"
+          stroke-width="0.8"
         />
       </g>
 
@@ -133,9 +224,21 @@ const fill = computed(() => config.value.fill)
 
       <!-- Glass of juice / milk -->
       <g v-else-if="shape === 'glass'">
-        <path d="M23 14 L41 14 L38 58 L26 58 Z" fill="rgba(255,255,255,0.14)" />
-        <path d="M25 30 L39 30 L37.2 55 L26.8 55 Z" :fill="fill" stroke="none" />
+        <path d="M23 14 L41 14 L38 58 L26 58 Z" fill="rgba(255,255,255,0.12)" />
+        <path d="M25 30 L39 30 L37.2 55 L26.8 55 Z" :fill="`url(#${liquidFillId})`" stroke="none" />
         <path d="M23 14 L41 14 L38 58 L26 58 Z" fill="none" />
+        <path
+          d="M24 16 L26 56"
+          stroke="rgba(255,255,255,0.45)"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+        <path
+          d="M23 14 L41 14 L38 58 L26 58 Z"
+          fill="none"
+          stroke="rgba(255,255,255,0.22)"
+          stroke-width="0.8"
+        />
       </g>
 
       <!-- Mug of coffee / tea -->
@@ -267,5 +370,6 @@ const fill = computed(() => config.value.fill)
   display: block;
   width: 100%;
   height: 100%;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
 }
 </style>

@@ -10,6 +10,7 @@ const SHINE_MS = 900
 
 const props = defineProps<{
   guestMode?: boolean
+  hideSectionHeadings?: boolean
 }>()
 
 const cabinet = useCabinetStore()
@@ -100,49 +101,58 @@ function isShining(name: string) {
 
 <template>
   <div class="cabinet-carousel">
-    <p v-if="!guestMode && !cabinet.items.length" class="cabinet-carousel__empty">
-      Nothing in your cabinet yet — add something above.
-    </p>
-
-    <draggable
-      v-else-if="!guestMode"
-      v-model="shelfItems"
-      class="cabinet-carousel__shelf"
-      :group="{ name: 'cabinet', pull: true, put: true }"
-      :sort="true"
-      :animation="180"
-      :force-fallback="true"
-      :fallback-on-body="true"
-      fallback-class="card-drag-ghost"
-      :delay="120"
-      :delay-on-touch-only="true"
-      :touch-start-threshold="6"
-      :item-key="(name: string) => name"
-      role="list"
+    <section
+      v-if="!guestMode"
+      class="cabinet-panel cabinet-shelf"
       aria-label="Your cabinet"
-      @change="commit"
+      :aria-labelledby="hideSectionHeadings ? undefined : 'cabinet-shelf-heading'"
     >
-      <template #item="{ element }">
-        <div class="shelf-card-wrap" role="listitem">
-          <div class="shelf-card">
-            <span class="shelf-card__art">
-              <IngredientGraphic :icon="iconFor(element)" />
-            </span>
-            <span class="shelf-card__label">{{ element }}</span>
-          </div>
-          <button
-            type="button"
-            class="shelf-card__remove"
-            :aria-label="`Remove ${element} from cabinet`"
-            @click="cabinet.removeItem(element)"
-          >
-            ×
-          </button>
-        </div>
-      </template>
-    </draggable>
+      <h2 v-if="!hideSectionHeadings" id="cabinet-shelf-heading">Your cabinet</h2>
 
-    <section class="cabinet-bar" aria-label="The bar — items selected for this shake">
+      <p v-if="!cabinet.items.length" class="cabinet-carousel__empty">
+        Nothing in your cabinet yet — add something above.
+      </p>
+
+      <draggable
+        v-else
+        v-model="shelfItems"
+        class="cabinet-carousel__shelf"
+        :group="{ name: 'cabinet', pull: true, put: true }"
+        :sort="true"
+        :animation="180"
+        :force-fallback="true"
+        :fallback-on-body="true"
+        fallback-class="card-drag-ghost"
+        :delay="120"
+        :delay-on-touch-only="true"
+        :touch-start-threshold="6"
+        :item-key="(name: string) => name"
+        role="list"
+        aria-label="Your cabinet"
+        @change="commit"
+      >
+        <template #item="{ element }">
+          <div class="shelf-card-wrap" role="listitem">
+            <div class="shelf-card">
+              <span class="shelf-card__art">
+                <IngredientGraphic :icon="iconFor(element)" />
+              </span>
+              <span class="shelf-card__label">{{ element }}</span>
+            </div>
+            <button
+              type="button"
+              class="shelf-card__remove"
+              :aria-label="`Remove ${element} from cabinet`"
+              @click="cabinet.removeItem(element)"
+            >
+              ×
+            </button>
+          </div>
+        </template>
+      </draggable>
+    </section>
+
+    <section class="cabinet-panel cabinet-bar" aria-label="The bar — items selected for this shake">
       <h2>The bar</h2>
       <div class="cabinet-bar__slots">
         <div class="cabinet-bar__underlay" aria-hidden="true">
@@ -199,6 +209,26 @@ function isShining(name: string) {
   font-style: italic;
 }
 
+.cabinet-panel {
+  flex: 0 0 auto;
+  padding: var(--space-md);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.cabinet-panel h2 {
+  margin: 0 0 var(--space-sm);
+  font-size: 1.375rem;
+}
+
+.cabinet-shelf {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-elevated);
+}
+
 .cabinet-carousel__shelf {
   display: flex;
   gap: var(--space-md);
@@ -207,7 +237,7 @@ function isShining(name: string) {
   align-items: center;
   overflow-x: auto;
   overflow-y: visible;
-  padding: var(--space-sm) var(--space-md) var(--space-md);
+  padding: var(--space-sm) 0 0;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
@@ -285,11 +315,40 @@ function isShining(name: string) {
 }
 
 .cabinet-bar {
-  flex: 0 0 auto;
-  padding: var(--space-md);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-elevated);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(201, 169, 98, 0.25);
+  background: linear-gradient(180deg, #3d2a1c 0%, #2a1c12 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.cabinet-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 3px,
+      rgba(0, 0, 0, 0.08) 3px,
+      rgba(0, 0, 0, 0.08) 4px
+    ),
+    repeating-linear-gradient(
+      175deg,
+      transparent 0,
+      transparent 8px,
+      rgba(255, 255, 255, 0.03) 8px,
+      rgba(255, 255, 255, 0.03) 9px
+    );
+  pointer-events: none;
+}
+
+.cabinet-bar h2 {
+  position: relative;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .cabinet-bar__slots {
@@ -315,7 +374,8 @@ function isShining(name: string) {
 .bar-slot--empty {
   display: grid;
   place-items: center;
-  background: var(--color-bg);
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 .bar-slot__label {

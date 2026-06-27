@@ -1,7 +1,12 @@
-import { SYSTEM_PROMPT, buildUserMessage } from './prompt.ts'
+import { systemPromptFor, buildUserMessage } from './prompt.ts'
 import type { GreetRequestBody } from './types.ts'
 
-async function callOpenAi(apiKey: string, model: string, userContent: string): Promise<string> {
+async function callOpenAi(
+  apiKey: string,
+  model: string,
+  systemPrompt: string,
+  userContent: string,
+): Promise<string> {
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -14,7 +19,7 @@ async function callOpenAi(apiKey: string, model: string, userContent: string): P
       max_tokens: 400,
       response_format: { type: 'json_object' },
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: userContent },
       ],
     }),
@@ -44,5 +49,5 @@ export async function completeGreetJson(body: GreetRequestBody): Promise<string>
   const key = Deno.env.get('OPENAI_API_KEY')
   if (!key) throw new Error('OPENAI_API_KEY is not set')
   const model = Deno.env.get('LLM_MODEL') ?? 'gpt-4o-mini'
-  return callOpenAi(key, model, userContent)
+  return callOpenAi(key, model, systemPromptFor(body), userContent)
 }

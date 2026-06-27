@@ -21,6 +21,7 @@ async function flush(): Promise<void> {
 describe('journeyStore greeting timing', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    localStorage.clear()
     mockFetchGreeting.mockReset()
     mockFetchGreeting.mockResolvedValue({
       greeting: 'The bar remembers you.',
@@ -44,20 +45,25 @@ describe('journeyStore greeting timing', () => {
     auth.initialized = true
     auth.user = { id: 'user-1' } as never
 
+    mockFetchGreeting.mockResolvedValueOnce({
+      greeting: 'Welcome back. The shelf is bare.',
+      favouritesCommentary: "Let's see if we can't find you a new favourite.",
+    })
+
     const favourites = useFavouritesStore()
     const journey = useJourneyStore()
 
     await flush()
+    await flush()
 
-    expect(journey.greetingLoaded).toBe(true)
-    expect(journey.greeting?.greeting).toContain('Welcome to the bar')
-    expect(mockFetchGreeting).not.toHaveBeenCalled()
+    expect(mockFetchGreeting).toHaveBeenCalledWith([], { returningWithNoFavourites: true })
+    expect(journey.greeting?.greeting).toBe('Welcome back. The shelf is bare.')
 
     favourites.replaceFromRemote([{ cocktailId: '1', cocktailName: 'Negroni' }])
     await flush()
     await flush()
 
-    expect(mockFetchGreeting).toHaveBeenCalledWith(['Negroni'])
+    expect(mockFetchGreeting).toHaveBeenLastCalledWith(['Negroni'], { returningWithNoFavourites: false })
     expect(journey.greeting?.greeting).toBe('The bar remembers you.')
   })
 
@@ -72,9 +78,27 @@ describe('journeyStore greeting timing', () => {
     await flush()
     await flush()
 
-    expect(mockFetchGreeting).toHaveBeenCalledWith(['Negroni'])
+    expect(mockFetchGreeting).toHaveBeenCalledWith(['Negroni'], { returningWithNoFavourites: false })
     expect(journey.greeting?.greeting).toBe('The bar remembers you.')
     expect(journey.greetingLoading).toBe(false)
+  })
+
+  it('fetches returning-with-no-favourites greeting when signed in with empty shelf', async () => {
+    const auth = useAuthStore()
+    auth.initialized = true
+    auth.user = { id: 'user-1' } as never
+
+    mockFetchGreeting.mockResolvedValueOnce({
+      greeting: 'Welcome back. Your ledger is empty.',
+      favouritesCommentary: "Let's see if we can't find you a new favourite.",
+    })
+
+    const journey = useJourneyStore()
+    await flush()
+    await flush()
+
+    expect(mockFetchGreeting).toHaveBeenCalledWith([], { returningWithNoFavourites: true })
+    expect(journey.greeting?.favouritesCommentary).toContain('new favourite')
   })
 
   it('shows generic greeting when signed out after auth init', async () => {

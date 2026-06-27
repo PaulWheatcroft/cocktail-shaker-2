@@ -9,6 +9,15 @@ const GENERIC_GREETING: GreetingResponse = {
     'Welcome to the bar. Standards are high, expectations are higher, and your cabinet shall be judged accordingly.',
 }
 
+const RETURNING_NO_FAVOURITES_GREETING: GreetingResponse = {
+  greeting: 'Welcome back to the bar. I note your favourites shelf is unoccupied.',
+  favouritesCommentary: "Let's see if we can't find you a new favourite — standards permitting.",
+}
+
+export interface FetchGreetingOptions {
+  returningWithNoFavourites?: boolean
+}
+
 function supabaseFunctionsUrl(): string {
   const base = import.meta.env.VITE_SUPABASE_URL?.trim().replace(/\/$/, '')
   if (!base) {
@@ -25,10 +34,19 @@ function anonKey(): string {
   return key
 }
 
-export async function fetchGreeting(favouriteNames: string[]): Promise<GreetingResponse> {
-  if (favouriteNames.length === 0) {
+export async function fetchGreeting(
+  favouriteNames: string[],
+  options: FetchGreetingOptions = {},
+): Promise<GreetingResponse> {
+  const returningWithNoFavourites = options.returningWithNoFavourites === true
+
+  if (favouriteNames.length === 0 && !returningWithNoFavourites) {
     return { ...GENERIC_GREETING }
   }
+
+  const fallback = returningWithNoFavourites
+    ? { ...RETURNING_NO_FAVOURITES_GREETING }
+    : { ...GENERIC_GREETING }
 
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
@@ -41,7 +59,7 @@ export async function fetchGreeting(favouriteNames: string[]): Promise<GreetingR
         Authorization: `Bearer ${anonKey()}`,
         apikey: anonKey(),
       },
-      body: JSON.stringify({ favouriteNames }),
+      body: JSON.stringify({ favouriteNames, returningWithNoFavourites }),
       signal: controller.signal,
     })
 
@@ -53,7 +71,7 @@ export async function fetchGreeting(favouriteNames: string[]): Promise<GreetingR
 
     if (!res.ok) {
       console.warn('[greet] request failed', res.status, data.error ?? data)
-      return { ...GENERIC_GREETING }
+      return fallback
     }
 
     if (data.response?.greeting) {
@@ -61,7 +79,7 @@ export async function fetchGreeting(favouriteNames: string[]): Promise<GreetingR
     }
 
     console.warn('[greet] unexpected response shape', data)
-    return { ...GENERIC_GREETING }
+    return fallback
   } catch (e) {
     const message =
       e instanceof Error
@@ -70,7 +88,7 @@ export async function fetchGreeting(favouriteNames: string[]): Promise<GreetingR
           : e.message
         : 'Greet unavailable'
     console.warn('[greet]', message)
-    return { ...GENERIC_GREETING }
+    return fallback
   } finally {
     clearTimeout(timeout)
   }

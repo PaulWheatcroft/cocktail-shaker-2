@@ -30,19 +30,27 @@ export const useJourneyStore = defineStore('journey', () => {
       return
     }
 
-    if (!auth.isSignedIn || favourites.count === 0) {
+    if (!auth.isSignedIn) {
       greeting.value = { ...GENERIC_GREETING }
       greetingLoading.value = false
       greetingLoaded.value = true
       return
     }
 
+    const favouriteNames = favourites.all().map((f) => f.cocktailName)
+    const returningWithNoFavourites = favouriteNames.length === 0
+
     greetingLoading.value = true
     try {
-      const result = await fetchGreeting(favourites.all().map((f) => f.cocktailName))
+      const result = await fetchGreeting(favouriteNames, { returningWithNoFavourites })
       greeting.value = result
     } catch {
-      greeting.value = { ...GENERIC_GREETING }
+      greeting.value = returningWithNoFavourites
+        ? {
+            greeting: 'Welcome back to the bar. I note your favourites shelf is unoccupied.',
+            favouritesCommentary: "Let's see if we can't find you a new favourite — standards permitting.",
+          }
+        : { ...GENERIC_GREETING }
     } finally {
       greetingLoading.value = false
       greetingLoaded.value = true
@@ -100,7 +108,7 @@ export const useJourneyStore = defineStore('journey', () => {
     step.value = 'welcome'
     const auth = useAuthStore()
     const favourites = useFavouritesStore()
-    if (auth.initialized && auth.isSignedIn && favourites.count > 0) {
+    if (auth.initialized && auth.isSignedIn) {
       greetingLoaded.value = false
       void loadGreeting()
     }

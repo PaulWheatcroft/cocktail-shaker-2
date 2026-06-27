@@ -1,6 +1,7 @@
 export interface GreetRequestBody {
   favouriteNames: string[]
   displayName?: string
+  returningWithNoFavourites?: boolean
 }
 
 export interface GreetResponseBody {

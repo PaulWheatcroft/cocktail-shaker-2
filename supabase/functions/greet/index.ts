@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { completeGreetJson } from './llm.ts'
-import { buildFallback, validateResponse } from './validate.ts'
+import { buildFallback, buildFallbackNoFavourites, validateResponse } from './validate.ts'
 import type { GreetRequestBody, GreetResponse } from './types.ts'
 
 const CORS_HEADERS = {
@@ -37,12 +37,18 @@ serve(async (req) => {
     .map((n) => n.trim())
     .slice(0, 12)
 
-  if (favouriteNames.length === 0) {
+  const returningWithNoFavourites = body.returningWithNoFavourites === true
+
+  if (favouriteNames.length === 0 && !returningWithNoFavourites) {
     return jsonResponse({ error: 'favouriteNames required' }, 400)
   }
 
+  const fallback = returningWithNoFavourites
+    ? buildFallbackNoFavourites()
+    : buildFallback(favouriteNames)
+
   try {
-    const rawText = await completeGreetJson({ ...body, favouriteNames })
+    const rawText = await completeGreetJson({ ...body, favouriteNames, returningWithNoFavourites })
     let parsed: unknown
     try {
       parsed = JSON.parse(rawText)
@@ -57,14 +63,14 @@ serve(async (req) => {
     }
 
     return jsonResponse({
-      response: buildFallback(favouriteNames),
+      response: fallback,
       degraded: true,
     } satisfies GreetResponse)
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Greet unavailable'
     return jsonResponse(
       {
-        response: buildFallback(favouriteNames),
+        response: fallback,
         degraded: true,
         error: message,
       },

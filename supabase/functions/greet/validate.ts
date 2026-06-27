@@ -10,6 +10,13 @@ export function buildFallback(favouriteNames: string[]): GreetResponseBody {
   }
 }
 
+export function buildFallbackNoFavourites(): GreetResponseBody {
+  return {
+    greeting: 'Welcome back to the bar. I note your favourites shelf is unoccupied.',
+    favouritesCommentary: "Let's see if we can't find you a new favourite — standards permitting.",
+  }
+}
+
 export function validateResponse(raw: unknown): GreetResponseBody | null {
   if (!raw || typeof raw !== 'object') return null
   const o = raw as Record<string, unknown>

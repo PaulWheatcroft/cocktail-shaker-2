@@ -235,7 +235,26 @@ function isShining(name: string) {
   padding: var(--space-sm) 0 0;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+}
+
+@media (min-width: 481px) {
+  .cabinet-carousel__shelf {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201, 169, 98, 0.35) transparent;
+  }
+
+  .cabinet-carousel__shelf::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .cabinet-carousel__shelf::-webkit-scrollbar-thumb {
+    background: rgba(201, 169, 98, 0.35);
+    border-radius: 3px;
+  }
+
+  .cabinet-carousel__shelf::-webkit-scrollbar-thumb:hover {
+    background: rgba(201, 169, 98, 0.5);
+  }
 }
 
 .shelf-card-wrap {

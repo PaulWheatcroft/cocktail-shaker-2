@@ -4,6 +4,53 @@ function normalizeName(name: string): string {
   return name.trim().toLowerCase()
 }
 
+function pitchForCandidate(candidate: HostessCandidateInput): string {
+  const { tier, summary } = candidate.hostessAppraisal
+  const reasonText = candidate.reasons.length ? candidate.reasons.join('; ') : ''
+
+  switch (tier) {
+    case 'impeccable':
+      return reasonText ? `${summary} ${reasonText}.` : summary
+    case 'respectable':
+      return reasonText ? `${summary} ${reasonText}.` : summary
+    case 'tolerable':
+      return reasonText
+        ? `Tolerable at best: ${summary} ${reasonText}.`
+        : `Tolerable at best: ${summary}`
+    case 'vulgar':
+      return `${summary}${reasonText ? ` (${reasonText})` : ''}`
+    case 'abomination':
+      return `${summary}${reasonText ? ` — ${reasonText}` : ''}`
+  }
+}
+
+function verdictForCandidates(candidates: HostessCandidateInput[]): string {
+  const top = candidates[0]
+  if (!top) return 'The cabinet offers nothing at all.'
+
+  const tier = top.hostessAppraisal.tier
+  const allBad = candidates.every((c) =>
+    c.hostessAppraisal.tier === 'vulgar' || c.hostessAppraisal.tier === 'abomination'
+  )
+
+  if (allBad && candidates.length > 1) {
+    return 'Your cabinet offers nothing civilised — only varying degrees of embarrassment.'
+  }
+
+  switch (tier) {
+    case 'impeccable':
+      return 'Impeccable taste — one approves without reservation.'
+    case 'respectable':
+      return 'The cabinet points to a respectable choice.'
+    case 'tolerable':
+      return 'We can make something tolerable from this cabinet, though expectations must be managed.'
+    case 'vulgar':
+      return 'Nothing here is respectable — only something vulgar will do.'
+    case 'abomination':
+      return 'Your cabinet offers nothing civilised — only an abomination remains.'
+  }
+}
+
 function buildPresentation(candidate: HostessCandidateInput): DrinkPresentationBody {
   const steps = candidate.sourceInstructions
     ? candidate.sourceInstructions
@@ -15,9 +62,7 @@ function buildPresentation(candidate: HostessCandidateInput): DrinkPresentationB
 
   return {
     name: candidate.name,
-    pitch: candidate.reasons.length
-      ? candidate.reasons.join('; ')
-      : 'A respectable choice from what you have on hand.',
+    pitch: pitchForCandidate(candidate),
     preparationSteps: steps.length ? steps : ['Prepare as the recipe demands.'],
   }
 }
@@ -28,15 +73,14 @@ export function buildFallback(candidates: HostessCandidateInput[]): HostessRespo
   const presentationCandidates = candidates.slice(0, 3)
 
   return {
-    verdict: 'The cabinet points to a respectable choice.',
+    verdict: verdictForCandidates(candidates),
     primaryRecommendation: top.name,
-    rationale: top.reasons.length ? top.reasons.join('; ') : 'It best matches what you have on hand.',
+    rationale: top.hostessAppraisal.summary,
     alternatives: alts.map((c) => c.name),
-    followUpSuggestions: [
-      'Make it drier',
-      'Something more bitter',
-      'Show another option',
-    ],
+    followUpSuggestions: top.hostessAppraisal.tier === 'vulgar' ||
+        top.hostessAppraisal.tier === 'abomination'
+      ? ['Something bitter', 'Less soda', 'A proper classic']
+      : ['Make it drier', 'Something more bitter', 'Show another option'],
     drinkPresentations: presentationCandidates.map(buildPresentation),
   }
 }
@@ -48,8 +92,6 @@ function findCandidate(
   return candidates.find((c) => normalizeName(c.name) === normalizeName(name))
 }
 
-// The LLM is now asked to write only the primary drink's presentation, so we
-// extract that single flamboyant entry and ignore any extras it may have added.
 function parsePrimaryPresentation(
   raw: unknown,
   primaryRecommendation: string,
@@ -109,8 +151,6 @@ export function validateResponse(
         .slice(0, 4)
     : ['Make it drier', 'Show another option']
 
-  // The LLM only writes the primary presentation; alternative presentations are
-  // composed deterministically from candidate data to keep the call ~3x faster.
   const primaryPresentation = parsePrimaryPresentation(o.drinkPresentations, primaryRecommendation)
   if (!primaryPresentation) return null
 

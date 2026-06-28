@@ -1,4 +1,8 @@
 import type { DrinkPresentation, HostessCandidatePayload, HostessResponse } from '@/types/domain'
+import {
+  fallbackPitchForTier,
+  fallbackVerdictForTier,
+} from '@/services/ranking/drinkAppraisal'
 
 function buildPresentation(candidate: HostessCandidatePayload): DrinkPresentation {
   const steps = candidate.sourceInstructions
@@ -11,9 +15,11 @@ function buildPresentation(candidate: HostessCandidatePayload): DrinkPresentatio
 
   return {
     name: candidate.name,
-    pitch: candidate.reasons.length
-      ? candidate.reasons.join('; ')
-      : 'A respectable choice from what you have on hand.',
+    pitch: fallbackPitchForTier(
+      candidate.hostessAppraisal.tier,
+      candidate.reasons,
+      candidate.name,
+    ),
     preparationSteps: steps.length ? steps : ['Prepare as the recipe demands.'],
   }
 }
@@ -21,17 +27,17 @@ function buildPresentation(candidate: HostessCandidatePayload): DrinkPresentatio
 export function buildFallbackResponse(candidates: HostessCandidatePayload[]): HostessResponse {
   const top = candidates[0]!
   const presentationCandidates = candidates.slice(0, 3)
+  const topTier = top.hostessAppraisal?.tier ?? 'respectable'
 
   return {
-    verdict: 'The cabinet points to a respectable choice.',
+    verdict: fallbackVerdictForTier(topTier),
     primaryRecommendation: top.name,
-    rationale: top.reasons.length ? top.reasons.join('; ') : 'It best matches what you have on hand.',
+    rationale: top.hostessAppraisal?.summary ?? 'It best matches what you have on hand.',
     alternatives: candidates.slice(1, 3).map((c) => c.name),
-    followUpSuggestions: [
-      'Make it drier',
-      'Something more bitter',
-      'Show another option',
-    ],
+    followUpSuggestions:
+      topTier === 'vulgar' || topTier === 'abomination'
+        ? ['Something bitter', 'Less soda', 'A proper classic']
+        : ['Make it drier', 'Something more bitter', 'Show another option'],
     drinkPresentations: presentationCandidates.map(buildPresentation),
   }
 }

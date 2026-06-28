@@ -3,6 +3,19 @@ export interface HostessRecipeIngredient {
   measure?: string
 }
 
+export type HostessApprovalTier =
+  | 'impeccable'
+  | 'respectable'
+  | 'tolerable'
+  | 'vulgar'
+  | 'abomination'
+
+export interface HostessAppraisal {
+  tier: HostessApprovalTier
+  summary: string
+  flags: string[]
+}
+
 export interface HostessCandidateInput {
   name: string
   score: number
@@ -12,6 +25,7 @@ export interface HostessCandidateInput {
   glass?: string
   sourceInstructions?: string
   ingredients?: HostessRecipeIngredient[]
+  hostessAppraisal: HostessAppraisal
 }
 
 export interface DrinkPresentationBody {
@@ -25,6 +39,7 @@ export interface HostessRequestBody {
   availableIngredients: string[]
   topCandidates: HostessCandidateInput[]
   personaMode: 'house_hostess'
+  houseStrictness: number
   substitutionNotes?: string[]
 }
 

@@ -37,8 +37,14 @@ export async function fetchHostessRecommendation(
   userRequest: string,
   cabinet: string[],
   ranked: RankedCandidate[],
+  houseStrictness: number,
 ): Promise<RecommendResult> {
-  const payload: HostessRequest = composeHostessRequest(userRequest, cabinet, ranked)
+  const payload: HostessRequest = composeHostessRequest(
+    userRequest,
+    cabinet,
+    ranked,
+    houseStrictness,
+  )
   const candidates = payload.topCandidates
 
   if (candidates.length === 0) {

@@ -44,6 +44,19 @@ export interface HostessRecipeIngredient {
   measure?: string
 }
 
+export type HostessApprovalTier =
+  | 'impeccable'
+  | 'respectable'
+  | 'tolerable'
+  | 'vulgar'
+  | 'abomination'
+
+export interface HostessAppraisal {
+  tier: HostessApprovalTier
+  summary: string
+  flags: string[]
+}
+
 export interface HostessCandidatePayload {
   name: string
   score: number
@@ -53,6 +66,7 @@ export interface HostessCandidatePayload {
   glass?: string
   sourceInstructions?: string
   ingredients?: HostessRecipeIngredient[]
+  hostessAppraisal: HostessAppraisal
 }
 
 export interface HostessRequest {
@@ -60,6 +74,7 @@ export interface HostessRequest {
   availableIngredients: string[]
   topCandidates: HostessCandidatePayload[]
   personaMode: 'house_hostess'
+  houseStrictness: number
   substitutionNotes?: string[]
 }
 

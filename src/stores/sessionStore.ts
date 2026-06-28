@@ -131,10 +131,12 @@ export const useSessionStore = defineStore('session', () => {
     hostessStatus.value = 'loading'
     hostessError.value = null
 
+    const prefs = usePreferencesStore()
     const result = await fetchHostessRecommendation(
       userRequest.value,
       cabinet.ingredientsForShake(),
       ranked.value,
+      prefs.houseStrictness,
     )
 
     hostessResponse.value = result.response

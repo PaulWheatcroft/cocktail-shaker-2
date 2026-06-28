@@ -13,6 +13,18 @@ const martini: Cocktail = {
   style: ['dry', 'spirit-forward'],
 }
 
+const cokeFloat: Cocktail = {
+  id: '2',
+  name: "Brandon and Will's Coke Float",
+  ingredients: [
+    { name: 'Vanilla ice-cream', measure: '2 scoops' },
+    { name: 'Coca-Cola', measure: '1 can' },
+    { name: 'Bourbon', measure: '2 oz' },
+  ],
+  tags: [],
+  style: ['sweet'],
+}
+
 describe('scoreCocktail', () => {
   it('scores higher with full cabinet match', () => {
     const full = scoreCocktail(martini, {
@@ -33,5 +45,16 @@ describe('scoreCocktail', () => {
     const a = scoreCocktail(martini, ctx).total
     const b = scoreCocktail(martini, ctx).total
     expect(a).toBe(b)
+  })
+
+  it('ranks martini above coke float at high strictness', () => {
+    const ctx = {
+      cabinet: ['gin', 'dry vermouth', 'bourbon', 'coke', 'ice cream'],
+      styleFilters: [] as const,
+      houseStrictness: 80,
+    }
+    const martiniScore = scoreCocktail(martini, ctx).total
+    const floatScore = scoreCocktail(cokeFloat, ctx).total
+    expect(martiniScore).toBeGreaterThan(floatScore)
   })
 })

@@ -24,7 +24,7 @@ async function retry() {
 </script>
 
 <template>
-  <section class="journey-shaking">
+  <section class="journey-shaker-screen journey-shaking">
     <ShakerAnimation :label="quip" />
     <p v-if="session.hostessDegraded && session.hostessError" class="journey-shaking__warn">
       {{ session.hostessError }}
@@ -36,16 +36,6 @@ async function retry() {
 </template>
 
 <style scoped>
-.journey-shaking {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-lg);
-  padding: var(--space-2xl) 0;
-  min-height: 50vh;
-  justify-content: center;
-}
-
 .journey-shaking__warn {
   color: var(--color-text-muted);
   font-size: 0.9rem;

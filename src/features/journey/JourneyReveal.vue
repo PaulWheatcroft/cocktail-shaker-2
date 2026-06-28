@@ -24,11 +24,13 @@ function selectAlternative(id: string) {
 <template>
   <section class="journey-reveal">
     <Transition name="reveal" mode="out-in">
-      <ShakerAnimation
+      <div
         v-if="session.hostessStatus === 'loading' || session.status === 'loading'"
         key="loading"
-        label="The hostess is shaking your drink…"
-      />
+        class="journey-shaker-screen"
+      >
+        <ShakerAnimation label="The hostess is shaking your drink…" />
+      </div>
 
       <div v-else key="stage" class="journey-reveal__stage">
       <div class="journey-reveal__card">
@@ -92,7 +94,7 @@ function selectAlternative(id: string) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   overflow: hidden;
   padding: 0;
 }

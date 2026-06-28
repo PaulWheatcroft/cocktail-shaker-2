@@ -24,6 +24,16 @@ const journey = useJourneyStore()
   min-height: 0;
 }
 
+.home-journey :deep(.journey-shaker-screen) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-2xl) 0;
+  min-height: 50vh;
+  justify-content: center;
+}
+
 .step-enter-active {
   transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }

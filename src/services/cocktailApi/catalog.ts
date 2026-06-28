@@ -1,7 +1,13 @@
 import { fetchIngredientCatalog } from './client'
 
 let catalogPromise: Promise<string[]> | null = null
-let catalogUpper: Set<string> | null = null
+
+/** Common shorthands → name as returned by list.php (case-insensitive match). */
+const CATALOG_LOOKUP_ALIASES: Record<string, string> = {
+  coke: 'Coca-Cola',
+  cola: 'Coca-Cola',
+  'coca cola': 'Coca-Cola',
+}
 
 async function loadCatalog(): Promise<string[]> {
   if (!catalogPromise) {
@@ -10,12 +16,15 @@ async function loadCatalog(): Promise<string[]> {
   return catalogPromise
 }
 
-async function upperSet(): Promise<Set<string>> {
-  if (!catalogUpper) {
-    const list = await loadCatalog()
-    catalogUpper = new Set(list.map((i) => i.toUpperCase()))
-  }
-  return catalogUpper
+function lookupName(name: string): string {
+  const trimmed = name.trim()
+  if (!trimmed) return trimmed
+  return CATALOG_LOOKUP_ALIASES[trimmed.toLowerCase()] ?? trimmed
+}
+
+function findCatalogEntry(list: string[], name: string): string | null {
+  const upper = name.toUpperCase()
+  return list.find((i) => i.toUpperCase() === upper) ?? null
 }
 
 export async function validateIngredient(name: string): Promise<boolean> {
@@ -27,7 +36,7 @@ export async function resolveCatalogIngredient(name: string): Promise<string | n
   const trimmed = name.trim()
   if (!trimmed) return null
   const list = await loadCatalog()
-  return list.find((i) => i.toUpperCase() === trimmed.toUpperCase()) ?? null
+  return findCatalogEntry(list, lookupName(trimmed))
 }
 
 export async function suggestIngredients(prefix: string, limit = 12): Promise<string[]> {
@@ -35,9 +44,18 @@ export async function suggestIngredients(prefix: string, limit = 12): Promise<st
   if (!trimmed) return []
   const list = await loadCatalog()
   const upperPrefix = trimmed.toUpperCase()
-  return list
-    .filter((i) => i.toUpperCase().startsWith(upperPrefix))
-    .slice(0, limit)
+
+  const matches = list.filter((i) => i.toUpperCase().startsWith(upperPrefix))
+
+  for (const [alias, target] of Object.entries(CATALOG_LOOKUP_ALIASES)) {
+    if (!alias.toUpperCase().startsWith(upperPrefix)) continue
+    const resolved = findCatalogEntry(list, target)
+    if (resolved && !matches.some((m) => m.toUpperCase() === resolved.toUpperCase())) {
+      matches.unshift(resolved)
+    }
+  }
+
+  return matches.slice(0, limit)
 }
 
 export async function getIngredientCatalog(): Promise<string[]> {
@@ -46,5 +64,4 @@ export async function getIngredientCatalog(): Promise<string[]> {
 
 export function resetCatalogCache(): void {
   catalogPromise = null
-  catalogUpper = null
 }

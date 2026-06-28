@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import AuthPanel from '@/features/auth/AuthPanel.vue'
 import CabinetCarousel from '@/features/cabinet/CabinetCarousel.vue'
-import { suggestIngredients } from '@/services/cocktailApi/catalog'
+import { suggestIngredients, resolveCatalogIngredient } from '@/services/cocktailApi/catalog'
 import { useCabinetStore } from '@/stores/cabinetStore'
 
 defineProps<{
@@ -31,10 +31,16 @@ function onDraftInput(e: Event) {
   void refreshSuggestions(value)
 }
 
-function addDraft() {
+async function addDraft() {
   const trimmed = draft.value.trim()
   if (!trimmed) return
-  cabinet.addItem(trimmed)
+  const resolved = await resolveCatalogIngredient(trimmed)
+  if (!resolved) {
+    inputError.value = `"${trimmed}" is not in the ingredient catalogue.`
+    return
+  }
+  inputError.value = null
+  cabinet.addItem(resolved)
   draft.value = ''
   void refreshSuggestions(draft.value)
 }

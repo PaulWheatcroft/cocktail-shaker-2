@@ -20,9 +20,9 @@ function openFavourite(cocktailId: string) {
 <template>
   <section>
     <h1>Favourites</h1>
-    <p class="favourites__intro">Cocktails you have marked to return to — stored locally, synced when signed in.</p>
+    <p class="favourites__intro">Cocktails you have marked to return to.</p>
 
-    <p v-if="favourites.count === 0" class="favourites__empty">No favourites yet. Heart a recipe after shaking.</p>
+    <p v-if="favourites.count === 0" class="favourites__empty">No favourites yet. Get shaking and like your favourites.</p>
 
     <ul v-else class="favourites__list">
       <li v-for="fav in favourites.items" :key="fav.cocktailId" class="favourites__item">

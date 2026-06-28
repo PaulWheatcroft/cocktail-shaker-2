@@ -23,12 +23,13 @@ const preferences = usePreferencesStore()
         <span class="prefs-value">{{ preferences.houseStrictness }}%</span>
       </label>
       <p id="house-strictness-help" class="prefs-note">
-        How opinionated the hostess is when she orders your matching drinks.
-        <strong>Low</strong> — classics and novelty cocktails are treated much the same.
-        <strong>High</strong> — proper classics (martini, negroni, old fashioned and the like)
-        rise to the top; flashy party drinks sink.
-        Your cabinet still decides what you can make — this only changes which match she puts first.
+        How strongly the hostess favours the classics.
+        <strong>Low</strong> and everything ranks equally.
+        <strong>High</strong> and proper classics (martini, negroni, old fashioned) come first,
+        flashy party drinks last.
       </p>
+      <p class="prefs-note">Go low and brace yourself to be judged!</p>
+      <p class="prefs-note">Go high and let the classics shine.</p>
     </div>
   </section>
 </template>

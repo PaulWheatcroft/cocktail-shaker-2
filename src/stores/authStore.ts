@@ -64,7 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
       cabinet.replaceFromRemote(merged.cabinet)
       favourites.replaceFromRemote(merged.favourites)
       preferences.replaceFromRemote(merged.houseStrictness)
-      authMessage.value = 'Your cabinet and favourites are synced.'
+      authMessage.value = 'Remember to drink responsibly.'
     } catch (e) {
       console.error('[auth] sync failed', e)
       authError.value = describeSyncError(e)

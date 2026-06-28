@@ -21,7 +21,7 @@ const hasCabinet = computed(
 <template>
   <section class="journey-cabinet">
     <header class="journey-cabinet__intro">
-      <h1 class="journey-cabinet__title">What shall we shake</h1>
+      <h1 class="journey-cabinet__title">What shall we shake?</h1>
       <p
         v-if="session.status === 'ready' && session.ranked.length === 0"
         class="journey-cabinet__empty"
@@ -34,7 +34,7 @@ const hasCabinet = computed(
       <CabinetPicker :guest-mode="!hasCabinet">
         <template #footer>
           <AppButton class="journey-cabinet__shake" :disabled="!cabinet.canShake" @click="journey.startShake()">
-            Shake it
+            Shake it!
           </AppButton>
         </template>
       </CabinetPicker>

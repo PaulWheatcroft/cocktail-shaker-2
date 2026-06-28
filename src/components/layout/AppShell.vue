@@ -2,8 +2,10 @@
 import { computed, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import AuthPanel from '@/features/auth/AuthPanel.vue'
+import { useAuthStore } from '@/stores/authStore'
 import { useJourneyStore } from '@/stores/journeyStore'
 
+const auth = useAuthStore()
 const journey = useJourneyStore()
 const route = useRoute()
 const navOpen = ref(false)
@@ -14,9 +16,13 @@ function closeNav() {
   navOpen.value = false
 }
 
-function goHome() {
-  journey.resetToWelcome()
-  closeNav()
+function onBrandClick() {
+  if (auth.isSignedIn) {
+    goToCabinet()
+  } else {
+    journey.resetToWelcome()
+    closeNav()
+  }
 }
 
 function goToCabinet() {
@@ -28,7 +34,7 @@ function goToCabinet() {
 <template>
   <div class="shell">
     <header class="shell__header">
-      <RouterLink to="/" class="shell__brand" @click="goHome">Cocktail Shaker</RouterLink>
+      <RouterLink to="/" class="shell__brand" @click="onBrandClick">Cocktail Shaker</RouterLink>
       <button
         type="button"
         class="shell__toggle"

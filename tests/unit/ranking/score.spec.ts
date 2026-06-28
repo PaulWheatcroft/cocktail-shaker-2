@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { scoreCocktail } from '@/services/ranking/score'
-import type { Cocktail } from '@/types/domain'
+import type { Cocktail, StyleTag } from '@/types/domain'
 
 const martini: Cocktail = {
   id: '1',
@@ -50,7 +50,7 @@ describe('scoreCocktail', () => {
   it('ranks martini above coke float at high strictness', () => {
     const ctx = {
       cabinet: ['gin', 'dry vermouth', 'bourbon', 'coke', 'ice cream'],
-      styleFilters: [] as const,
+      styleFilters: [] as StyleTag[],
       houseStrictness: 80,
     }
     const martiniScore = scoreCocktail(martini, ctx).total

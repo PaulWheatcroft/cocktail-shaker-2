@@ -20,9 +20,15 @@ onMounted(async () => {
   suggestions.value = await suggestIngredients('')
 })
 
-async function onDraftInput() {
+async function refreshSuggestions(value: string) {
   inputError.value = null
-  suggestions.value = await suggestIngredients(draft.value)
+  suggestions.value = await suggestIngredients(value)
+}
+
+function onDraftInput(e: Event) {
+  const value = (e.target as HTMLInputElement).value
+  draft.value = value
+  void refreshSuggestions(value)
 }
 
 function addDraft() {
@@ -30,8 +36,7 @@ function addDraft() {
   if (!trimmed) return
   cabinet.addItem(trimmed)
   draft.value = ''
-  inputError.value = null
-  onDraftInput()
+  void refreshSuggestions(draft.value)
 }
 
 function pickSuggestion(name: string) {
